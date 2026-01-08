@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-// 1. SEGURANÇA: Busca e LIMPA a chave (remove espaços vazios)
+// 1. SEGURANÇA: Busca a chave nas variáveis de ambiente
 const RAW_KEY = process.env.OTIMIZE_SECRET_KEY || '';
-const SECRET_KEY = RAW_KEY.trim(); // <--- Remove espaços acidentais do copy-paste
+const SECRET_KEY = RAW_KEY.trim(); 
 
 const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
@@ -24,9 +24,6 @@ module.exports = async (req, res) => {
         return res.status(405).json({ success: false, message: 'Método não permitido.' });
     }
 
-    // DIAGNÓSTICO: Mostra no log da Vercel se a chave carregou (mostra só o começo)
-    console.log("Status da Chave:", SECRET_KEY ? `Carregada (Inicia com: ${SECRET_KEY.substring(0, 5)}...)` : "NÃO ENCONTRADA");
-
     if (!SECRET_KEY) {
         return res.status(500).json({
             success: false,
@@ -37,9 +34,8 @@ module.exports = async (req, res) => {
     try {
         const { customer, total, items } = req.body;
 
-        // Sanitização do CPF e Valor
+        // Sanitização
         const cleanCPF = customer?.cpf ? customer.cpf.replace(/\D/g, '') : '';
-        
         let amountFloat = 0;
         if (typeof total === 'string') {
             amountFloat = parseFloat(total.replace('R$', '').replace(/\./g, '').replace(',', '.'));
@@ -47,14 +43,12 @@ module.exports = async (req, res) => {
             amountFloat = parseFloat(total);
         }
 
-        if (isNaN(amountFloat) || amountFloat <= 0) {
-            return res.status(400).json({ success: false, message: "Valor total inválido." });
-        }
-        
+        if (isNaN(amountFloat)) amountFloat = 0;
         const amountInCents = Math.round(amountFloat * 100);
 
-        // Autenticação Basic Auth Padrão (Chave + :)
-        const authString = Buffer.from(`${SECRET_KEY}:`).toString('base64');
+        // --- CORREÇÃO CRÍTICA AQUI ---
+        // Adicionado o ":x" conforme a documentação da Otimize
+        const authString = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
 
         const payload = {
             amount: amountInCents,
@@ -84,7 +78,7 @@ module.exports = async (req, res) => {
             ]
         };
 
-        console.log("Enviando para Otimize:", JSON.stringify(payload));
+        console.log("Enviando para Otimize com Auth corrigido...");
 
         const response = await axios.post(API_URL, payload, {
             headers: {
@@ -106,15 +100,13 @@ module.exports = async (req, res) => {
         });
 
     } catch (error) {
-        // Captura detalhada do erro da API
         const errorData = error.response?.data;
         const statusCode = error.response?.status;
         console.error("ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
 
-        // Retorna a mensagem exata da Otimize para o frontend
         return res.status(statusCode || 500).json({
             success: false,
-            message: `Falha na Operadora (${statusCode}): ${errorData?.error?.message || errorData?.message || error.message}`,
+            message: `Falha (${statusCode}): ${errorData?.error?.message || errorData?.message || error.message}`,
             details: errorData
         });
     }

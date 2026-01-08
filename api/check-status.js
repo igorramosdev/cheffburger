@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const SECRET_KEY = process.env.OTIMIZE_SECRET_KEY;
+const SECRET_KEY = process.env.OTIMIZE_SECRET_KEY ? process.env.OTIMIZE_SECRET_KEY.trim() : '';
 const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
 module.exports = async (req, res) => {
@@ -21,9 +21,9 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const authString = Buffer.from(`${SECRET_KEY}:`).toString('base64');
+        // --- CORREÇÃO CRÍTICA AQUI TAMBÉM ---
+        const authString = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
 
-        // URL correta: .../transactions/ID
         const response = await axios.get(`${API_URL}/${id}`, {
             headers: { 'Authorization': `Basic ${authString}` }
         });
