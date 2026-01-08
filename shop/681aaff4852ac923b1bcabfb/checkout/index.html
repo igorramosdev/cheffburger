@@ -1,71 +1,46 @@
 <html>
-
 <head>
   <meta http-equiv="content-type" content="text/html;charset=UTF-8">
-  <meta name="google" content="notranslate">
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" type="image/jpg" href="../../../assets/vtex.file-manager-graphql/images/30b948ee-9b10-4c2f-8758-fd82fb95361e___af80d9a5c64906e0662936151537ff10-25.svg">
   <title>Checkout</title>
-  <link type="text/css" href="../../../css/delivry-25.css" rel="stylesheet">
+  <link type="text/css" href="./css/delivry-25-1.css" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  
-  <style type="text/css">
+
+  <style>
+    /* CORREÇÃO DO RODAPÉ CORTADO EM CELULARES */
+    @media screen and (max-width: 768px) {
+        footer {
+            position: relative !important;
+            margin-top: 30px !important;
+            bottom: auto !important;
+        }
+        main#lista, .payment-area {
+            padding-bottom: 0 !important;
+            margin-bottom: 20px !important;
+        }
+    }
+
     h1, h2 { color: #EA1D2C; }
     header#topo .cover { background-color: #EA1D2C; }
-    header#topo .info h1 { color: #EA1D2C; }
-    header#topo .info .icones a { color: #EA1D2C; border-color: #EA1D2C; }
-    header#topo .cover .logo {
-      background-color: white !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    header#topo #menuCategorias { background: #EA1D2C; }
-    header#topo .categorias a { border-top-color: #EA1D2C; }
-    footer { background: #EA1D2C; }
-    footer#carrinho .container .icone span { color: #EA1D2C; }
-    .btn, a.voltar, .btnSair, .btnFidelidade, .btnGoogle, .btnEmail, .btnSemCadastro { background: #EA1D2C; }
-    .qtdeProduto i:hover { color: #EA1D2C; }
-    .lista .item .col .nomeProduto { color: #EA1D2C; }
-    main#lista .produtos .item a:hover { border: 2px solid #EA1D2C; }
-    #pedido .entrega .radio label input[type="radio"]:checked, #pedido .entrega .radio label:hover { background: #EA1D2C; }
-    #pedido .pagamentos input[type="radio"]:checked+label::before, #detalhesProduto .info2 .opcoes input[type="checkbox"]:checked+label::before, #pedido .trocarPontos input[type="checkbox"]:checked+label::before { background-color: #EA1D2C; border: 2px solid #EA1D2C; }
-    .selecionado { border: 2px solid #EA1D2C; }
-    #meuCarrinho button.fechar, #rastreamento .registro span.passou { background: #EA1D2C; }
-    span.estoque i { color: #EA1D2C; }
-    .produtos { gap: 20px !important; }
-    footer { position: static; width: 100%; display: flex; align-items: center; justify-content: center; padding: 15px; flex-direction: column; margin-top: 50px !important; }
-    .box span { background-color: #FF0000 !important; }
-    input[type="radio"] { accent-color: #EA1D2C; width: 20px; height: 20px; }
-    .freight { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-    .opt { border-radius: 10px; border: 2px solid #EA1D2C; padding: 15px 10px; display: flex; align-items: center; justify-content: space-between; }
-    .opt-1 { display: flex; align-items: center; gap: 15px; }
-    .opt-1-1 { display: flex; flex-direction: column; }
-    .opt-1-1-span-1 { font-weight: bold; }
-    .opt-1-1-span-2 { font-size: .8rem; }
-    .containerFinalizar { margin-bottom: 30px !important; }
-    .payment-area { margin: 10px; margin-top: 20px; border-radius: 20px; }
-    .payment { margin-top: 20px; margin-block: 30px; display: flex; flex-direction: column; gap: 10px; }
-    .input { display: flex; flex-direction: column; gap: 3px; }
-    .input input { padding: 12px; border-radius: 10px; border: 1px solid rgba(0, 0, 0, .3); font-size: 1rem; }
+    .btn, a.voltar { background: #EA1D2C; }
+    .pay-btn { width: 100%; background-color: #077C22; margin-top: 30px !important; color: white; padding: 15px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
     .hidden { display: none !important; }
-    .cart-product { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 10px; border: 1px solid #EA1D2C; border-radius: 8px; cursor: pointer; }
-    .pay-btn { width: 100%; background-color: #077C22; color: white; border: none; padding: 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 30px; }
-    .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+    .cart-product { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; border: 1px solid #EA1D2C; border-radius: 5px; }
+    .c-p-01 { display: flex; align-items: center; gap: 10px; }
+    .c-p-01 img { max-width: 80px; border-radius: 5px; }
   </style>
 </head>
 
 <body>
-  <div id="opacidade" class="fechar"></div>
   <header id="topo">
     <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp');">
       <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center;">
-        <img src="../../../SN8gVgwk/logocheff.png" style="width: 100%;">
+        <img src="/SN8gVgwk/logocheff.png" style="width: 100%;">
       </div>
       <div class="borda"></div>
     </div>
@@ -73,8 +48,8 @@
 
   <div class="payment-area">
     <div class="container containerFinalizar">
-      <h2 style="width: 100%; text-align: center;">Finalize seu pedido</h2>
-      <a class="voltar" href="../cart.html" title="Voltar"><i class="fa-solid fa-chevron-left"></i> VOLTAR</a>
+      <h2 style="width: 100%;text-align: center;" id="checkout-top">Finalize seu pedido</h2>
+      <a class="voltar" href="../cart.html"><i class="fa-solid fa-chevron-left"></i> VOLTAR</a>
       
       <div id="detalhesProduto">
         <div class="payment">
@@ -82,64 +57,83 @@
             <label for="nome">Nome completo <b>*</b></label>
             <input type="text" id="nome" placeholder="Nome e Sobrenome" required>
           </div>
+          
           <div class="input">
-            <label for="cpf">CPF (Obrigatório) <b>*</b></label>
-            <input type="text" id="cpf" placeholder="000.000.000-00" required>
+            <label for="cpf">CPF (Opcional para teste)</label>
+            <input type="text" id="cpf" placeholder="000.000.000-00">
           </div>
+
           <div class="input">
             <label for="telefone">Telefone <b>*</b></label>
             <input type="text" id="telefone" placeholder="(00) 00000-0000" required>
           </div>
-          
-          <h3 style="width: 100%; text-align: start; margin-top: 20px;">Dados da entrega</h3>
+
+          <h3 style="width: 100%;text-align: start; margin-top: 20px;">Dados da entrega</h3>
           <div class="input">
             <label for="cep">CEP <b>*</b></label>
-            <input type="text" placeholder="12345-000" id="cep" required>
+            <input type="text" id="cep" placeholder="00000-000" required>
           </div>
           
-          <div id="address-fields" class="hidden">
-            <div class="input"><label>Endereço <b>*</b></label><input type="text" id="address" required></div>
-            <div style="display: flex; gap: 10px;">
-              <div class="input" style="flex: 1;"><label>Número <b>*</b></label><input type="text" id="number" required></div>
-              <div class="input" style="flex: 2;"><label>Bairro <b>*</b></label><input type="text" id="neighborhood" required></div>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <div class="input" style="flex: 2;"><label>Cidade <b>*</b></label><input type="text" id="city" required></div>
-              <div class="input" style="flex: 1;"><label>Estado <b>*</b></label><input type="text" id="state" required></div>
-            </div>
+          <div id="address-container" class="hidden">
+              <div class="input"><label>Endereço</label><input type="text" id="address"></div>
+              <div class="input"><label>Número</label><input type="text" id="number"></div>
+              <div class="input"><label>Bairro</label><input type="text" id="neighborhood"></div>
+              <div class="input"><label>Cidade</label><input type="text" id="city"></div>
+              <div class="input"><label>Estado</label><input type="text" id="state"></div>
           </div>
-
-          <h3 style="width: 100%; text-align: start; margin-top: 20px; margin-bottom: 10px;">Ofertas disponíveis:</h3>
-          <label class="cart-product">
-            <div style="display:flex; align-items:center; gap:15px;">
-              <img src="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp" style="width:50px; border-radius:5px;">
-              <div>
-                <div style="font-weight: bold;">Bolo de Pote Brigadeiro</div>
-                <span style="color:#077c22; font-weight: bold;">+ R$ 8,00</span>
-              </div>
-            </div>
-            <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" style="width:20px; height:20px;">
-          </label>
-          <label class="cart-product">
-            <div style="display:flex; align-items:center; gap:15px;">
-              <img src="https://i.ibb.co/hqXP2qX/1761874938086blob.webp" style="width:50px; border-radius:5px;">
-              <div>
-                <div style="font-weight: bold;">Bolo de Pote Prestígio</div>
-                <span style="color:#077c22; font-weight: bold;">+ R$ 8,00</span>
-              </div>
-            </div>
-            <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" style="width:20px; height:20px;">
-          </label>
-
-          <h3 style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Resumo do Pedido</h3>
-          <div id="checkout-cart-items" style="background: #fafafa; padding: 15px; border-radius: 8px;"></div>
-          
-          <div style="text-align: right; margin-top: 20px; font-size: 1.2rem; font-weight: bold;">
-            Total a pagar: <span id="total-price" style="color: #077C22;">R$ 0,00</span>
-          </div>
-
-          <button id="generate-payment" class="pay-btn">GERAR PIX E FINALIZAR</button>
         </div>
+
+        <div class="payment">
+          <h3 style="width: 100%;text-align: start;margin-bottom: 10px;">Ofertas disponíveis:</h3>
+
+          <label class="cart-product orderbump">
+            <div class="c-p-01">
+              <div class="img"><img src="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp"></div>
+              <div class="info">
+                <span class="product-name">Bolo de Pote Brigadeiro</span>
+                <p>R$ <span class="preco">8,00</span></p>
+              </div>
+            </div>
+            <div class="add">
+              <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" style="width:20px; height:20px; accent-color: #EA1D2C;">
+            </div>
+          </label>
+
+          <label class="cart-product orderbump">
+            <div class="c-p-01">
+              <div class="img"><img src="https://i.ibb.co/hqXP2qX/1761874938086blob.webp"></div>
+              <div class="info">
+                <span class="product-name">Bolo de Pote Prestígio</span>
+                <p>R$ <span class="preco">8,00</span></p>
+              </div>
+            </div>
+            <div class="add">
+              <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" style="width:20px; height:20px; accent-color: #EA1D2C;">
+            </div>
+          </label>
+
+          <h3 style="width: 100%;text-align: start;margin-bottom: 10px; margin-top: 20px;">Seu carrinho:</h3>
+          <div id="checkout-cart-items" style="margin-bottom: 20px; border: 1px solid #eee; padding: 10px; border-radius: 5px;"></div>
+
+          <hr style="margin-block: 20px;">
+          <div id="precoProduto"> Total: <span id="total-price">R$ 0,00</span></div>
+          
+          <button class="pay-btn" id="generate-payment">GERAR PIX</button>
+        </div>
+
+        <div class="reviews">
+          <div class="review" style="border: 1px solid #eee; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+            <div class="r-top" style="display:flex; align-items:center; gap:5px; font-weight:bold;">
+                <img src="/reclameaqui-assets/libraries/header/images/logo-mobile.svg" width="20"><span>Reclame Aqui</span>
+            </div>
+            <p style="font-size: 0.9rem; margin-top:5px;">O consumidor avaliou o atendimento dessa empresa como <b>ÓTIMO</b>.</p>
+          </div>
+        </div>
+
+        <footer>
+          <b style="text-align: center;">Cheff Burguer</b>
+          <span style="font-size: 11pt;font-weight: normal;text-align: center;">CNPJ: 37.XXX.253/0001-51</span>
+        </footer>
       </div>
     </div>
   </div>
@@ -153,63 +147,53 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const paymentBtn = document.getElementById('generate-payment');
-      let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
       
-      function renderResumo() {
-        const container = document.getElementById('checkout-cart-items');
-        container.innerHTML = '';
-        
-        if(carrinho.length === 0 && document.querySelectorAll('._orderbump:checked').length === 0) {
-          container.innerHTML = "<p>Seu carrinho está vazio.</p>";
-          return;
-        }
-
-        // Itens do carrinho
-        carrinho.forEach(item => {
-          let precoItem = typeof item.preco === 'string' ? parseFloat(item.preco.replace(',','.')) : item.preco;
-          let imgSrc = item.imagem || 'https://via.placeholder.com/50';
-          container.innerHTML += `
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                 <div style="display: flex; align-items: center; gap: 10px;">
-                   <img src="${imgSrc}" style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">
-                   <span>${item.quantidade}x ${item.nome}</span>
-                 </div>
-                 <span>R$ ${(precoItem * item.quantidade).toFixed(2).replace('.',',')}</span>
-             </div>`;
-        });
-
-        // Ofertas (Orderbumps)
-        document.querySelectorAll('._orderbump:checked').forEach(bump => {
-          let nome = bump.getAttribute('o-name');
-          let preco = parseFloat(bump.getAttribute('price'));
-          let imgSrc = bump.closest('.cart-product').querySelector('img').src;
-          
-          container.innerHTML += `
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                 <div style="display: flex; align-items: center; gap: 10px;">
-                   <img src="${imgSrc}" style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">
-                   <span>1x ${nome} (Oferta)</span>
-                 </div>
-                 <span>R$ ${preco.toFixed(2).replace('.',',')}</span>
-             </div>`;
-        });
-      }
-
       function calcularTotal() {
         let total = 0;
+        let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
         carrinho.forEach(item => {
-          let preco = typeof item.preco === 'string' ? parseFloat(item.preco.replace(',','.')) : item.preco;
-          total += (preco || 0) * (item.quantidade || 1);
+           let preco = typeof item.preco === 'string' ? parseFloat(item.preco.replace(',','.')) : item.preco;
+           total += (preco || 0) * (item.quantidade || 1);
         });
         document.querySelectorAll('._orderbump:checked').forEach(bump => {
           total += parseFloat(bump.getAttribute('price'));
         });
         document.getElementById('total-price').textContent = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-        renderResumo();
         return total;
       }
 
-      calcularTotal();
+      function renderizarCarrinho() {
+        const container = document.getElementById('checkout-cart-items');
+        let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+        
+        if(carrinho.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#888;'>Seu carrinho está vazio.</p>";
+        } else {
+            container.innerHTML = '';
+            carrinho.forEach(item => {
+              let precoItem = typeof item.preco === 'string' ? parseFloat(item.preco.replace(',','.')) : item.preco;
+              // Ajuste Imagem
+              let img = item.imagem || 'https://placehold.co/50';
+              if(img && !img.startsWith('http')) img = './' + img;
+
+              container.innerHTML += `
+                 <div class="cart-product" style="border:none; border-bottom:1px solid #eee;">
+                     <div class="c-p-01">
+                        <img src="${img}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;">
+                        <div>
+                            <span>${item.nome}</span><br>
+                            <small>${item.quantidade}x R$ ${precoItem.toFixed(2).replace('.',',')}</small>
+                        </div>
+                     </div>
+                     <b>R$ ${(precoItem * item.quantidade).toFixed(2).replace('.',',')}</b>
+                 </div>
+              `;
+            });
+        }
+        calcularTotal();
+      }
+
+      renderizarCarrinho();
       document.querySelectorAll('._orderbump').forEach(el => el.addEventListener('change', calcularTotal));
 
       document.getElementById('cep').addEventListener('blur', async function() {
@@ -219,7 +203,7 @@
             const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
             const data = await res.json();
             if(!data.erro) {
-              document.getElementById('address-fields').classList.remove('hidden');
+              document.getElementById('address-container').classList.remove('hidden');
               document.getElementById('address').value = data.logradouro;
               document.getElementById('neighborhood').value = data.bairro;
               document.getElementById('city').value = data.localidade;
@@ -230,19 +214,22 @@
         }
       });
 
+      // BOTÃO PAGAR (SEM VALIDAÇÃO ESTRITA DE CPF)
       paymentBtn.addEventListener('click', async () => {
         const nome = document.getElementById('nome').value.trim();
         const cpf = document.getElementById('cpf').value.trim();
         const tel = document.getElementById('telefone').value.trim();
 
-        if(!nome || cpf.length < 14 || tel.length < 14) {
-          Swal.fire('Atenção', 'Preencha Nome, Telefone e CPF corretamente.', 'warning');
+        // Validação relaxada (CPF não é mais obrigatório aqui)
+        if(!nome || !tel) {
+          Swal.fire('Atenção', 'Preencha Nome e Telefone.', 'warning');
           return;
         }
 
         paymentBtn.disabled = true;
         paymentBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
+        let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
         let itensFinais = carrinho.map(i => ({
              nome: i.nome,
              preco: typeof i.preco === 'string' ? parseFloat(i.preco.replace(',','.')) : i.preco,
@@ -269,16 +256,21 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
           });
+
           const data = await res.json();
-          if(data.success) {
-            window.location.href = `/payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${encodeURIComponent(JSON.stringify(data))}`;
+
+          if(res.ok && data.success) {
+            const dataStr = encodeURIComponent(JSON.stringify(data));
+            window.location.href = `/payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${dataStr}`;
           } else {
-            throw new Error(data.message || "Erro no pagamento");
+            throw new Error(data.message || "Erro na API.");
           }
+
         } catch(e) {
+          console.error(e);
           Swal.fire('Erro', e.message, 'error');
           paymentBtn.disabled = false;
-          paymentBtn.innerHTML = "TENTAR NOVAMENTE";
+          paymentBtn.innerHTML = "GERAR PIX";
         }
       });
     });
