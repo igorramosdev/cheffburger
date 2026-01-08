@@ -262,6 +262,26 @@
                       min-height: 350px;
                     }
 
+                    /* Ofertas disponiveis: Larger images and text */
+                    .other-cart-products .item.new-item {
+                      flex: 0 0 180px !important;
+                      min-height: 400px !important;
+                    }
+
+                    .other-cart-products .item.new-item figure {
+                      max-height: 180px !important;
+                      max-width: 180px !important;
+                    }
+
+                    .other-cart-products .item.new-item .texto h3 {
+                      font-size: 16px !important;
+                      font-weight: bold !important;
+                    }
+
+                    .other-cart-products .item.new-item .texto span.preco {
+                      font-size: 20px !important;
+                    }
+
                     .container {
                       display: flex !important;
                       flex-direction: column;
@@ -318,20 +338,22 @@
                     }
 
                     .cart-product-info img {
-                      width: 80px;
-                      height: 80px;
+                      width: 100px; /* Larger image */
+                      height: 100px;
                       object-fit: cover;
                       border-radius: 8px;
                     }
 
                     .product-details h3 {
                       margin: 0 0 5px 0;
-                      font-size: 1rem;
+                      font-size: 1.1rem; /* Larger and bold */
+                      font-weight: bold;
                     }
 
                     .product-details .price {
-                      font-weight: bold;
-                      color: #2e7d32;
+                      font-weight: normal; /* Normal text */
+                      color: #666;
+                      font-size: 0.9rem;
                     }
 
                     .quantity-controls {
@@ -429,7 +451,7 @@
 
                   <div>
                     <div class="container containerFinalizar">
-                      <h2 style="width: 100%;text-align: center;">Carrinho</h2>
+                      <h2 style="width: 100%;text-align: center;">Seu carrinho:</h2>
                       <a class="voltar" href="../../index.html" title="Voltar"><i class="fa-solid fa-chevron-left"></i>
                         VOLTAR</a>
                       <div id="detalhesProduto">
@@ -509,7 +531,7 @@
                           </button>
                         </div>
 
-                        <h3 style="margin-top: 25px; margin-bottom: 10px;">Leve também:</h3>
+                        <h3 style="margin-top: 25px; margin-bottom: 10px;">Ofertas disponíveis:</h3>
                         <div class="other-cart-products">
 
                           <div class="item new-item" data-id="687ea04cfcc65d99d7010c5e">
