@@ -1,8 +1,10 @@
 const axios = require('axios');
 
-// SEGURANÇA: A chave agora é buscada nas variáveis de ambiente do servidor
-const SECRET_KEY = process.env.OTIMIZE_SECRET_KEY; 
-const BASE_URL = 'https://api.otimizepagamentos.com/v1/transactions';
+// 1. SEGURANÇA: Busca a chave nas variáveis de ambiente
+const SECRET_KEY = process.env.OTIMIZE_SECRET_KEY;
+
+// 2. URL CORRETA DA OTIMIZE
+const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
 export default async function handler(req, res) {
     // Configuração de CORS
@@ -20,49 +22,67 @@ export default async function handler(req, res) {
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+        return res.status(405).json({ success: false, message: 'Método não permitido.' });
     }
 
-    // Trava de segurança: Se a chave não estiver configurada no servidor, para tudo.
+    // Validação da Chave de API
     if (!SECRET_KEY) {
         console.error("ERRO CRÍTICO: Variável OTIMIZE_SECRET_KEY não encontrada.");
-        return res.status(500).json({ 
-            success: false, 
-            message: "Erro de configuração no servidor (Chave de API ausente)." 
+        return res.status(500).json({
+            success: false,
+            message: "Erro de configuração no servidor: Chave de API não encontrada."
         });
     }
 
     try {
         const { customer, total, items } = req.body;
 
-        // Converter valor para centavos e sanitizar input
-        let amountFloat = 0;
-        if (typeof total === 'string') {
-             amountFloat = parseFloat(total.replace('R$', '').replace(/\./g, '').replace(',', '.'));
-        } else {
-             amountFloat = parseFloat(total);
+        console.log("Recebendo requisição Pix:", { customerName: customer?.nome, total });
+
+        // --- SANITIZAÇÃO DE DADOS ---
+
+        // 1. CPF (Remove não-números)
+        const cleanCPF = customer?.cpf ? customer.cpf.replace(/\D/g, '') : '';
+        if (!cleanCPF || cleanCPF.length !== 11) {
+            return res.status(400).json({ success: false, message: "CPF inválido. Informe apenas números." });
         }
 
-        if (isNaN(amountFloat)) amountFloat = 0;
+        // 2. Valor (Converte para centavos)
+        let amountFloat = 0;
+        if (typeof total === 'string') {
+            amountFloat = parseFloat(total.replace('R$', '').replace(/\./g, '').replace(',', '.'));
+        } else {
+            amountFloat = parseFloat(total);
+        }
+
+        if (isNaN(amountFloat) || amountFloat <= 0) {
+            return res.status(400).json({ success: false, message: "Valor total inválido." });
+        }
         const amountInCents = Math.round(amountFloat * 100);
 
-        // Autenticação Basic Auth (Base64 da Secret Key + :)
+        // 3. Autenticação
         const authString = Buffer.from(`${SECRET_KEY}:`).toString('base64');
 
+        // 4. Montagem do Payload
         const payload = {
             amount: amountInCents,
             payment_method: "pix",
             checkout: "api",
             customer: {
-                name: customer?.nome || "Cliente Visitante",
-                email: customer?.email || "cliente@email.com",
-                phone: customer?.telefone || "",
+                name: customer.nome || "Cliente",
+                email: customer.email || "cliente@email.com",
+                phone: customer.telefone || "",
                 document: {
-                    number: customer?.cpf || "000.000.000-00", 
+                    number: cleanCPF,
                     type: "cpf"
                 }
             },
-            items: items || [
+            items: items && items.length > 0 ? items.map(item => ({
+                title: item.nome || item.title || "Produto",
+                unit_price: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100),
+                quantity: parseInt(item.quantidade || item.quantity || 1),
+                tangible: true
+            })) : [
                 {
                     title: "Pedido Delivery",
                     unit_price: amountInCents,
@@ -74,7 +94,8 @@ export default async function handler(req, res) {
 
         console.log("Enviando para Otimize:", JSON.stringify(payload));
 
-        const response = await axios.post(`${BASE_URL}/transactions`, payload, {
+        // 5. Chamada à API Externa
+        const response = await axios.post(API_URL, payload, {
             headers: {
                 'Authorization': `Basic ${authString}`,
                 'Content-Type': 'application/json'
@@ -83,22 +104,27 @@ export default async function handler(req, res) {
 
         const data = response.data;
 
+        // Sucesso
         return res.status(200).json({
             success: true,
             transactionId: data.id,
             pix_copy_paste: data.pix.qrcode_text,
             qr_code_base64: data.pix.qrcode_image,
-            amount: total,
+            amount: amountFloat,
             customer: customer,
-            expiration_seconds: 1800
+            expiration_seconds: 1800 // 30 min
         });
 
     } catch (error) {
-        console.error("Erro Otimize API:", error.response?.data || error.message);
-        return res.status(500).json({ 
-            success: false, 
-            message: "Erro ao processar pagamento.", 
-            details: error.response?.data || error.message 
+        console.error("Erro na API Otimize:", error.response?.data || error.message);
+        
+        // Retorna erro formatado para o frontend (sem expor stack trace)
+        const errorMessage = error.response?.data?.error?.message || error.message || "Erro desconhecido ao processar pagamento.";
+        
+        return res.status(500).json({
+            success: false,
+            message: "Falha ao gerar Pix: " + errorMessage,
+            details: error.response?.data
         });
     }
 }
