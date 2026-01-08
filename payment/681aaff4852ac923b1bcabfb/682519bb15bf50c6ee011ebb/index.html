@@ -1,185 +1,118 @@
 <html>
-
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y2N3W6KSXL"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-Y2N3W6KSXL');
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids async defer></script>
-
-  <script>
-    window.googlePixelId = "6939e6eb93ad351dc55b7088";
-    var a = document.createElement("script");
-    a.setAttribute("async", "");
-    a.setAttribute("defer", "");
-    a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-google.js");
-    document.head.appendChild(a);
-  </script>
-
-  <script>
-    window.pixelId = "6939e6eb93ad351dc55b7088";
-    var b = document.createElement("script");
-    b.setAttribute("async", "");
-    b.setAttribute("defer", "");
-    b.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
-    document.head.appendChild(b);
-  </script>
-
-  <script>
-    let params = {
-      src: "",
-      sck: "",
-      utm_source: "",
-      utm_campaign: "",
-      utm_medium: "",
-      utm_content: "",
-      utm_term: "",
-      gclid: "",
-      fbclid: "",
-    };
-
-    for (let key in params) {
-      const url_params = new URLSearchParams(window.location.search);
-      const get_param = url_params.get(key);
-
-      if (typeof get_param == "string") {
-        if (get_param.length > 0) {
-          params[key] = get_param;
-        }
-      }
-    }
-
-    localStorage.setItem("tracking_data", JSON.stringify(params));
-  </script>
-
-  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-  <meta name="google" content="notranslate" />
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="shortcut icon" type="image/jpg" href="/assets/vtex.file-manager-graphql/images/30b948ee-9b10-4c2f-8758-fd82fb95361e___af80d9a5c64906e0662936151537ff10-26.svg" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Finalizar Pagamento</title>
-  <link type="text/css" href="/css/delivry-25.css" rel="stylesheet" />
+  
+  <link type="text/css" href="/css/delivry-25.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-  <style type="text/css">
-    h1, h2 { color: #ea1d2c; }
+  <style>
+    /* Estilos do Design Original */
+    h1, h2, h3 { color: #ea1d2c; }
     header#topo .cover { background-color: #ea1d2c; }
-    header#topo .info h1 { color: #ea1d2c; }
-    header#topo .info .icones a { color: #ea1d2c; border-color: #ea1d2c; }
-    header#topo .cover .logo { background: #ea1d2c; }
-    header#topo #menuCategorias { background: #ea1d2c; }
-    footer { background: #ea1d2c; }
-    .btn, a.voltar { background: #ea1d2c; }
+    .btn, a.voltar { background: #ea1d2c; color:white; }
+    .payment-area { max-width: 600px; margin: 20px auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    
+    /* Timer e Fallback */
+    #timer-box { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
+    #fallback-area { display: none; background: #fff4f4; padding: 20px; border-radius: 10px; border: 1px dashed #ea1d2c; text-align: center; margin-top: 20px; }
+    
+    .copy-code { width: 100%; background-color: #ea1d2c; color: white; border: none; border-radius: 50px; padding: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; }
+    .copy-code:hover { background-color: #c41421; }
+    
+    textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; color: #555; font-size: 12px; }
+    #qrcode { display: flex; justify-content: center; margin: 20px 0; }
+    #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
 
-    /* Timer e Fallback Styles */
-    #timer-box { font-size: 1.2rem; margin-bottom: 10px; }
-    #fallback-area { animation: fadeIn 0.5s; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* Steps */
+    .steps { display: flex; justify-content: space-between; margin-top: 30px; opacity: 0.8; }
+    .step { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+    .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .current-step { color: #ea1d2c; font-weight: bold; opacity: 1; }
+    .current-step .s-circle { border-color: #ea1d2c; color: #ea1d2c; }
   </style>
-
-  <meta name="theme-color" content="#EA1D2C" />
-  <script src="/npm/sweetalert2%4011-26"></script>
-  <link rel="stylesheet" href="/icon-26?family=Material+Icons" />
 </head>
 
 <body>
-  <div id="opacidade" class="fechar"></div>
   <header id="topo">
-    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp');">
-      <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center;">
-        <img src="/SN8gVgwk/logocheff.png" style="width: 100%" />
+    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp'); height: 150px;">
+      <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center; position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <img src="/SN8gVgwk/logocheff.png" style="width: 100%;">
       </div>
-      <div class="borda"></div>
     </div>
   </header>
 
-  <div class="payment-area">
-    <div class="container containerFinalizar">
-      <h2 style="width: 100%; text-align: center">Falta pouco!</h2>
-      <h3 style="width: 100%; text-align: center">Pagamento via Pix</h3>
-
-      <a class="voltar" href="/shop/681aaff4852ac923b1bcabfb/checkout" title="Voltar">
-        <i class="fa-solid fa-chevron-left"></i> VOLTAR
-      </a>
-
-      <div id="detalhesProduto">
-        <div class="payment">
-
-          <div id="timer-box" style="font-weight: bold; color: #ea1d2c; text-align: center;">
-             Expira em: <span id="time-display">--:--</span>
-          </div>
-
-          <div id="active-payment-area" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-              <div id="qrcode"></div>
-              <p style="text-align: center; color: #666; font-size: 0.9em; margin-top: 10px;">
-                  Escaneie o QR Code ou copie o código abaixo
-              </p>
-              <textarea id="pix-text" readonly onclick="this.select()"></textarea>
-              <button class="copy-code" id="copy-code">Copiar código PIX</button>
-          </div>
-
-          <div id="fallback-area" style="display: none; width: 100%; text-align: center; background: #fff4f4; padding: 20px; border-radius: 10px; border: 1px dashed #ea1d2c;">
-              <i class="material-icons" style="font-size: 40px; color: #ea1d2c;">error_outline</i>
-              <h3 style="color: #ea1d2c; margin: 10px 0;">O código expirou</h3>
-              <p style="color: #555; margin-bottom: 20px;">Não se preocupe! Gere um novo código para finalizar seu pedido.</p>
-              <button id="btn-renew" onclick="renovarPix()" style="background-color: #077c22; color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1.1em; box-shadow: 0 4px 10px rgba(7,124,34,0.3);">
-                  GERAR NOVO PIX
-              </button>
-          </div>
-
-          <div class="how-to-pay">
-            <h3 style="color: #ea1d2c">Passo a passo:</h3>
-            <p><b>1.</b> Abra o aplicativo do seu banco;</p>
-            <p><b>2.</b> Escolha "Pagar com QR Code" ou "Pix Copia e Cola";</p>
-            <p><b>3.</b> Escaneie a imagem ou cole o código;</p>
-            <p><b>4.</b> Confirme os dados e finalize.</p>
-          </div>
-
-          <div class="steps" style="margin-top: 30px;">
-            <div class="step current-step">
-              <div class="s-circle">1</div>
-              <span>Aguardando</span>
-            </div>
-            <div class="separator current-step"><div></div></div>
-            <div class="step">
-              <div class="s-circle">2</div>
-              <span>Confirmado</span>
-            </div>
-            <div class="separator"><div></div></div>
-            <div class="step">
-              <div class="s-circle">3</div>
-              <span>Entregue</span>
-            </div>
-          </div>
-
+  <div style="height: 40px;"></div> <div class="payment-area">
+    <h2 style="text-align: center">Falta pouco!</h2>
+    <h3 style="text-align: center; font-size: 1.1rem; color: #555;">Pagamento via Pix</h3>
+    
+    <div id="detalhesProduto">
+      <div class="payment">
+        
+        <div id="timer-box">
+           Expira em: <span id="time-display">--:--</span>
         </div>
-      </div>
 
-      <div class="cart-top" id="cart-top" style="margin-top: 30px;">
-        <div class="triangle"></div>
-        <span class="c-s-1">Ver Detalhes do Pedido</span>
-      </div>
-      <div class="cart-body hidden" id="cart-body-content">
-         </div>
+        <div id="active-payment-area">
+            <div id="qrcode"></div>
+            <textarea id="pix-text" readonly onclick="this.select()"></textarea>
+            <button class="copy-code" id="btn-copy"><i class="fa fa-copy"></i> COPIAR CÓDIGO PIX</button>
+        </div>
 
+        <div id="fallback-area">
+            <i class="fa fa-exclamation-circle" style="font-size: 40px; color: #ea1d2c; margin-bottom: 10px;"></i>
+            <h3 style="margin: 5px 0;">O código expirou</h3>
+            <p style="color: #666; margin-bottom: 15px;">Não se preocupe! Gere um novo código para finalizar.</p>
+            <button onclick="renovarPix()" class="copy-code" id="btn-renew" style="background-color: #077c22;">
+                GERAR NOVO PIX
+            </button>
+        </div>
+
+        <div class="how-to-pay" style="margin-top: 30px;">
+          <h3 style="font-size: 1rem;">Passo a passo:</h3>
+          <ul style="padding-left: 20px; color: #555; font-size: 0.9rem; line-height: 1.6;">
+             <li>Abra o app do seu banco.</li>
+             <li>Escolha <b>Pix</b> > <b>Ler QR Code</b> ou <b>Copia e Cola</b>.</li>
+             <li>Escaneie ou cole o código acima.</li>
+             <li>Confirme o pagamento.</li>
+          </ul>
+        </div>
+
+        <div class="pix-security-alert" style="margin-top: 20px; background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <i class="fa fa-shield-alt" style="color: #2196f3; font-size: 20px;"></i>
+                <div>
+                    <strong style="color: #1976d2;">Ambiente Seguro</strong>
+                    <p style="margin: 0; color: #555; font-size: 0.8rem;">Seu pagamento é processado com criptografia bancária.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="steps">
+          <div class="step current-step">
+            <div class="s-circle">1</div> <span>Pagar</span>
+          </div>
+          <div class="step">
+            <div class="s-circle">2</div> <span>Aprovado</span>
+          </div>
+          <div class="step">
+            <div class="s-circle">3</div> <span>Entrega</span>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
   <footer>
-    <b style="text-align: center">Cheff Burguer</b>
-    <span style="font-size: 11pt; font-weight: normal; text-align: center">CNPJ: 37.XXX.253/0001-51</span>
-    <div style="margin-top: 10px;">
-      <a href="#" style="color: white; text-decoration: underline;">Termos de Uso</a>
+    <div style="text-align: center; padding: 20px; color: #fff; background: #ea1d2c; margin-top: 30px;">
+        <b>Cheff Burguer</b><br>
+        <span style="font-size: 0.9rem;">CNPJ: 37.XXX.253/0001-51</span>
     </div>
   </footer>
-
-  <script type="text/javascript" src="/js/jquery-26.js"></script>
-  <script src="/js/sweetalert.min-26.js"></script>
 
   <script>
     let countdownInterval;
@@ -187,16 +120,7 @@
     let currentPaymentData = null;
 
     document.addEventListener("DOMContentLoaded", () => {
-        // Dropdown do carrinho
-        const cartTop = document.getElementById("cart-top");
-        cartTop.addEventListener("click", () => {
-            const cartBody = document.querySelector(".cart-body");
-            cartBody.classList.toggle("hidden");
-            const triangle = cartTop.querySelector(".triangle");
-            triangle.style.transform = cartBody.classList.contains("hidden") ? "rotate(0deg)" : "rotate(90deg)";
-        });
-
-        // Recuperar dados da URL
+        // 1. Pegar dados da URL
         const urlParams = new URLSearchParams(window.location.search);
         const dataParam = urlParams.get('data');
 
@@ -207,132 +131,83 @@
 
         try {
             currentPaymentData = JSON.parse(decodeURIComponent(dataParam));
-
-            // Personaliza Nome
-            if(currentPaymentData.customer && currentPaymentData.customer.nome) {
-                const primeiroNome = currentPaymentData.customer.nome.split(" ")[0];
-                document.querySelector('h2').textContent = `Falta pouco, ${primeiroNome}!`;
-            }
-
-            // Renderiza Itens no Carrinho (Opcional)
-            renderCartItems(currentPaymentData);
-
-            // Inicia Interface de Pagamento
             renderInterface(currentPaymentData);
-
         } catch (e) {
-            console.error("Erro no parse JSON", e);
-            Swal.fire('Erro', 'Falha ao processar dados do pedido.', 'error');
+            console.error(e);
+            Swal.fire('Erro', 'Falha ao carregar dados.', 'error');
         }
     });
-
-    function renderCartItems(data) {
-        const cartBody = document.getElementById('cart-body-content');
-        if(data.items && Array.isArray(data.items)) {
-            cartBody.innerHTML = '';
-            data.items.forEach(item => {
-                // Tratamento de preço seguro
-                let preco = item.unit_price || item.preco || 0;
-                if(preco > 1000) preco = preco / 100; // Se vier em centavos
-
-                cartBody.innerHTML += `
-                    <div class="cart-product" style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
-                        <span>${item.title || item.nome} (x${item.quantity || item.quantidade})</span>
-                        <b>R$ ${parseFloat(preco).toFixed(2).replace('.',',')}</b>
-                    </div>
-                `;
-            });
-        }
-    }
 
     function renderInterface(data) {
         const qrCodeEl = document.getElementById('qrcode');
         const pixTextEl = document.getElementById('pix-text');
-
-        // 1. Preencher Copia e Cola
+        
+        // Texto Copia e Cola
         pixTextEl.value = data.pix_copy_paste;
-
-        // 2. Renderizar QR Code
+        
+        // Imagem QR Code
         qrCodeEl.innerHTML = '';
         if (data.qr_code_base64 && data.qr_code_base64.length > 20) {
             const img = document.createElement('img');
-            img.src = data.qr_code_base64.startsWith('data:') ? data.qr_code_base64 : `data:image/png;base64,${data.qr_code_base64}`;
-            img.style.maxWidth = '100%';
-            img.style.borderRadius = '10px';
+            // Verifica se já tem o prefixo data:image
+            const prefix = data.qr_code_base64.startsWith('data:') ? '' : 'data:image/png;base64,';
+            img.src = prefix + data.qr_code_base64;
+            img.style.width = '100%';
             qrCodeEl.appendChild(img);
         } else {
+            // Fallback JS
             new QRCode(qrCodeEl, {
                 text: data.pix_copy_paste,
                 width: 250,
-                height: 250,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
+                height: 250
             });
         }
 
-        // 3. Iniciar Timer (30 min ou o que vier da API)
+        // Inicia Timer e Verificação
         startTimer(data.expiration_seconds || 1800);
-
-        // 4. Iniciar Polling (Verificação)
         startPolling(data.transactionId);
     }
 
     // Botão Copiar
-    document.getElementById('copy-code').addEventListener("click", () => {
+    document.getElementById('btn-copy').addEventListener("click", () => {
         const textArea = document.getElementById('pix-text');
         textArea.select();
         document.execCommand('copy');
-        const btn = document.getElementById('copy-code');
-        const originalText = btn.textContent;
-
-        btn.textContent = "CÓDIGO COPIADO!";
-        btn.style.background = "#077c22";
-
+        const btn = document.getElementById('btn-copy');
+        btn.innerHTML = '<i class="fa fa-check"></i> COPIADO!';
+        btn.style.backgroundColor = "#077c22";
         setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.background = "#ea1d2c";
+            btn.innerHTML = '<i class="fa fa-copy"></i> COPIAR CÓDIGO PIX';
+            btn.style.backgroundColor = "#ea1d2c";
         }, 2000);
     });
 
-    // Lógica do Timer
     function startTimer(duration) {
         let timer = duration, minutes, seconds;
         const display = document.getElementById('time-display');
-
         clearInterval(countdownInterval);
-
+        
         countdownInterval = setInterval(() => {
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
-
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
-
             display.textContent = minutes + ":" + seconds;
 
             if (--timer < 0) {
-                handleExpiration();
+                clearInterval(countdownInterval);
+                clearInterval(checkInterval); // Para de verificar
+                document.getElementById('active-payment-area').style.display = 'none';
+                document.getElementById('fallback-area').style.display = 'block';
+                display.textContent = "EXPIRADO";
             }
         }, 1000);
     }
 
-    // Quando o tempo acaba
-    function handleExpiration() {
-        clearInterval(countdownInterval);
-        clearInterval(checkInterval);
-
-        document.getElementById('active-payment-area').style.display = 'none';
-        document.getElementById('fallback-area').style.display = 'block';
-        document.getElementById('time-display').textContent = "EXPIRADO";
-        document.getElementById('time-display').style.color = "#666";
-    }
-
-    // Polling de Status
     function startPolling(transactionId) {
         if(!transactionId) return;
         clearInterval(checkInterval);
-
+        
         checkInterval = setInterval(async () => {
             try {
                 const res = await fetch(`/api/check-status?id=${transactionId}`);
@@ -341,8 +216,8 @@
                 if (statusData.paid) {
                     clearInterval(checkInterval);
                     clearInterval(countdownInterval);
-
-                    // Atualiza Stepper visualmente
+                    
+                    // Atualiza Steps
                     document.querySelectorAll('.step')[0].classList.remove('current-step');
                     document.querySelectorAll('.step')[1].classList.add('current-step');
 
@@ -350,29 +225,26 @@
                         icon: 'success',
                         title: 'Pagamento Aprovado!',
                         text: 'Seu pedido está sendo preparado.',
-                        timer: 2000,
+                        timer: 3000,
                         showConfirmButton: false
                     }).then(() => {
+                        // Redireciona para página de sucesso ou mantém na tela
                         window.location.href = '/entrega'; 
                     });
                 }
-            } catch (e) {
-                console.log("Aguardando pagamento...");
-            }
+            } catch (e) { console.log("Aguardando..."); }
         }, 5000);
     }
 
-    // Função Salva Venda (Renovar Pix)
     async function renovarPix() {
         const btn = document.getElementById('btn-renew');
-        btn.innerHTML = 'GERANDO... AGUARDE';
+        btn.innerHTML = 'GERANDO...';
         btn.disabled = true;
 
         try {
-            // Reutiliza customer e amount do objeto global
             const payload = {
                 customer: currentPaymentData.customer,
-                total: currentPaymentData.amount, // Valor original
+                total: currentPaymentData.amount, // Mantém o valor original
                 items: currentPaymentData.items
             };
 
@@ -385,71 +257,23 @@
             const newData = await response.json();
 
             if (newData.success) {
-                // Atualiza dados globais
-                currentPaymentData = newData;
-
-                // Reseta UI
+                currentPaymentData = newData; // Atualiza dados
+                
                 document.getElementById('fallback-area').style.display = 'none';
-                document.getElementById('active-payment-area').style.display = 'flex';
-                document.getElementById('time-display').style.color = "#ea1d2c";
-
-                // Renderiza novos dados
+                document.getElementById('active-payment-area').style.display = 'block';
+                document.getElementById('time-display').textContent = "AGUARDE...";
+                
                 renderInterface(newData);
-
                 btn.innerHTML = 'GERAR NOVO PIX';
                 btn.disabled = false;
-            } else {
-                throw new Error(newData.message || "Erro na API");
-            }
+            } else { throw new Error(newData.message); }
 
         } catch (error) {
-            console.error(error);
-            Swal.fire('Erro', 'Não foi possível renovar o código. Tente recarregar a página.', 'error');
+            Swal.fire('Erro', 'Não foi possível renovar o Pix.', 'error');
             btn.innerHTML = 'TENTAR NOVAMENTE';
             btn.disabled = false;
         }
     }
   </script>
-
-  <style>
-    .cart-body { display: flex; flex-direction: column; gap: 10px; padding: 10px; background: #fafafa; border-radius: 5px; }
-    .hidden { display: none !important; }
-    .triangle { width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 15px solid #ea1d2c; transition: transform 0.3s; }
-    .cart-top { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; background: #eee; border-radius: 5px; }
-
-    .steps { display: flex; justify-content: space-between; width: 100%; opacity: 0.6; }
-    .step { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.8rem; }
-    .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; background: white; z-index: 2; }
-    .current-step { opacity: 1; font-weight: bold; color: #ea1d2c; }
-    .current-step .s-circle { border-color: #ea1d2c; color: #ea1d2c; }
-    .separator { flex: 1; height: 2px; background: #ccc; margin-top: 15px; }
-    .separator.current-step div { width: 100%; height: 100%; background: #ea1d2c; }
-
-    .copy-code {
-        background-color: #ea1d2c;
-        color: white;
-        border: none;
-        border-radius: 15px;
-        padding: 12px;
-        cursor: pointer;
-        width: 100%;
-        margin-top: 10px;
-        font-weight: bold;
-        transition: 0.3s;
-    }
-    .copy-code:hover { background-color: #c41421; }
-
-    textarea {
-        width: 100%;
-        height: 80px;
-        padding: 10px;
-        border: 2px dashed #ea1d2c;
-        border-radius: 10px;
-        background: #fafafa;
-        resize: none;
-        font-size: 12px;
-        color: #555;
-    }
-  </style>
 </body>
 </html>

