@@ -16,56 +16,41 @@
   <link rel="stylesheet" href="../../../icon-25?family=Material+Icons">
 
   <style>
-    /* === CORREÇÕES DE ESTILO === */
+    /* === AJUSTES DE ESTILO ESSENCIAIS === */
     
-    /* 1. Header e Logo Centralizado */
-    header#topo .cover { 
-        background-color: #EA1D2C; 
-        height: 160px; /* Altura ajustada para melhor visualização */
-        position: relative;
-        background-position: center center !important; /* Garante centralização */
-        background-size: cover !important;
-    }
-    .logo {
-        width: 100px;
-        height: 100px;
-        background: white;
-        border-radius: 50%;
-        position: absolute;
-        bottom: -50px;
-        left: 50%;
-        transform: translateX(-50%); /* Centraliza perfeitamente */
+    /* Botão Voltar Fixo */
+    a.voltar {
         display: flex;
+        width: fit-content;
+        padding: 8px 15px;
         align-items: center;
-        justify-content: center;
-        border: 4px solid white;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        z-index: 10;
+        gap: 5px;
+        background: #EA1D2C;
+        color: #ffffff;
+        border-radius: 100px;
+        font-size: 12px;
+        text-decoration: none;
+        font-weight: bold;
+        position: fixed !important;
+        top: 15px;
+        left: 15px;
+        z-index: 9999;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    /* 2. Imagens dos Produtos (Carrinho e Ofertas) - AUMENTADAS */
-    .c-p-01 { display: flex; align-items: center; gap: 15px; }
-    .c-p-01 img { 
-        width: 75px !important;  /* Aumentado de 50px para 75px */
-        height: 75px !important; /* Aumentado de 50px para 75px */
-        object-fit: cover; 
-        border-radius: 8px; 
+    /* Container Principal */
+    .containerFinalizar {
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        margin-top: 20px;
     }
-    
-    /* 3. Provas Sociais (Ícones Pequenos) - CORRIGIDO */
-    .review { border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 10px; background: #fff; }
-    .r-top { display: flex; align-items: center; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; }
-    /* Força o tamanho pequeno dos ícones */
-    .r-top img { 
-        width: 35px !important; 
-        height: auto !important; 
-        margin-right: 15px;
-    }
-    /* Ajuste específico para a imagem redonda do iFood para não distorcer */
-    .review:nth-child(2) .r-top img { height: 35px !important; object-fit: cover; }
 
-
-    /* --- Demais Estilos (Mantidos) --- */
+    /* Inputs Estilizados */
     .input input {
         width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;
         background-color: #fff; font-size: 1rem; outline: none; transition: border 0.3s;
@@ -74,24 +59,23 @@
     .input label { font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block; color: #333; }
     .input { margin-bottom: 15px; }
 
-    a.voltar {
-        display: flex; width: fit-content; padding: 8px 15px; align-items: center; gap: 5px;
-        background: #EA1D2C; color: #ffffff; border-radius: 100px; font-size: 12px;
-        text-decoration: none; font-weight: bold; position: fixed !important; top: 15px; left: 15px;
-        z-index: 9999; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
-    .containerFinalizar {
-        max-width: 800px; margin: 20px auto; background: white; border: 1px solid #e0e0e0;
-        border-radius: 15px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-top: 60px;
-    }
-
+    /* Produtos e Ofertas */
     .cart-product { 
         display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
         padding: 10px; border: 1px solid #eee; border-left: 4px solid #EA1D2C; border-radius: 5px; background: #fff;
     }
+    .c-p-01 { display: flex; align-items: center; gap: 15px; }
+    
+    /* Imagens Produtos */
+    .c-p-01 img { 
+        width: 75px !important; 
+        height: 75px !important; 
+        object-fit: cover; 
+        border-radius: 8px; 
+    }
     .product-name { font-weight: bold; font-size: 1rem; line-height: 1.2; }
 
+    /* Order Bumps */
     .orderbump { 
         border: 2px solid #eee; border-radius: 10px; padding: 10px; margin-bottom: 10px; 
         display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;
@@ -100,19 +84,27 @@
     .orderbump:hover { border-color: #EA1D2C; }
     .orderbump input[type="checkbox"] { accent-color: #EA1D2C; width: 20px; height: 20px; }
 
+    /* Provas Sociais (Ícones Pequenos) */
+    .review { border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 10px; background: #fff; }
+    .r-top { display: flex; align-items: center; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; }
+    .r-top img { width: 35px !important; height: auto !important; margin-right: 15px; }
+    .review:nth-child(2) .r-top img { height: 35px !important; object-fit: cover; }
+
+    /* Botão Pagar */
     .pay-btn { 
         width: 100%; background-color: #077C22; color: white; padding: 18px; border: none; 
         border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 20px; 
         text-transform: uppercase; box-shadow: 0 4px 10px rgba(7, 124, 34, 0.3);
     }
     
+    /* Footer Fixo embaixo */
     footer {
         position: static !important; background: #EA1D2C; color: white; text-align: center; 
         padding: 20px; margin-top: 50px; width: 100%;
     }
 
     @media screen and (max-width: 768px) {
-        .containerFinalizar { border: none; padding: 0 15px; margin-top: 70px; }
+        .containerFinalizar { border: none; padding: 0 15px; margin-top: 20px; }
         footer { margin-bottom: 0; }
     }
     
@@ -124,10 +116,11 @@
   <a class="voltar" href="../cart.html"><i class="fa fa-chevron-left"></i> VOLTAR</a>
 
   <header id="topo">
-    <div class="cover main" style="background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp');">
-      <div class="logo">
-        <img src="https://cheffburger.vercel.app/shop/681aaff4852ac923b1bcabfb/SN8gVgwk/logocheff.png" style="width: 100%; border-radius:50%;">
+    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp');">
+      <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center;">
+        <img src="https://cheffburger.vercel.app/shop/681aaff4852ac923b1bcabfb/SN8gVgwk/logocheff.png" style="width: 100%;">
       </div>
+      <div class="borda"></div>
     </div>
   </header>
 
@@ -178,27 +171,27 @@
 
           <label class="cart-product orderbump" for="bump1">
             <div class="c-p-01">
-              <img src="https://i.ibb.co/tpBcvjGd/1761874938117blob.webp">
+              <img src="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp">
               <div class="info">
                 <span class="product-name">Bolo de Pote Brigadeiro</span>
                 <p style="color:#077c22; font-weight:bold; margin:0;">R$ 8,00</p>
               </div>
             </div>
             <div class="add">
-              <input type="checkbox" id="bump1" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" o-image="https://i.ibb.co/tpBcvjGd/1761874938117blob.webp">
+              <input type="checkbox" id="bump1" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" o-image="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp">
             </div>
           </label>
 
           <label class="cart-product orderbump" for="bump2">
             <div class="c-p-01">
-              <img src="https://i.ibb.co/twY42GMV/1761874938086blob.webp">
+              <img src="https://i.ibb.co/hqXP2qX/1761874938086blob.webp">
               <div class="info">
                 <span class="product-name">Bolo de Pote Prestígio</span>
                 <p style="color:#077c22; font-weight:bold; margin:0;">R$ 8,00</p>
               </div>
             </div>
             <div class="add">
-              <input type="checkbox" id="bump2" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" o-image="https://i.ibb.co/twY42GMV/1761874938086blob.webp">
+              <input type="checkbox" id="bump2" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" o-image="https://i.ibb.co/hqXP2qX/1761874938086blob.webp">
             </div>
           </label>
 
@@ -284,7 +277,7 @@
             let total = 0;
             checkoutCartItemsContainer.innerHTML = '';
 
-            // --- A) Itens do LocalStorage ---
+            // Itens do LocalStorage
             let itensReais = carrinho.filter(i => !i.id || !String(i.id).startsWith('bump-'));
             
             if(itensReais.length === 0) {
@@ -296,10 +289,7 @@
                 let qtd = parseInt(item.quantidade) || 1;
                 total += preco * qtd;
 
-                // Imagem Placeholder se faltar
                 let img = item.imagem || 'https://placehold.co/75';
-                
-                // Ajuste de caminho se for local
                 if(img && !img.startsWith('http')) {
                     img = '../../../' + img.replace('./', '');
                 }
@@ -318,25 +308,24 @@
                 `;
             });
 
-            // --- B) Order Bumps (Visualmente) ---
+            // Order Bumps
             document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
                 let nome = checkbox.getAttribute('o-name');
-                let preco = parseFloat(checkbox.getAttribute('price'));
+                let preco = parseFloat(checkbox.getAttribute('price')) || 0;
                 let img = checkbox.getAttribute('o-image');
                 
                 total += preco;
 
-                // Insere HTML do Bump no carrinho visualmente
                 checkoutCartItemsContainer.innerHTML += `
-                    <div class="cart-product" style="background-color: #f0fdf4; border-color: #077C22; border-left: 4px solid #077C22;">
+                    <div class="cart-product" style="background-color: #fff9db;">
                         <div class="c-p-01">
                             <img src="${img}">
                             <div class="info">
                                 <span class="product-name">${nome}</span>
-                                <span style="font-size: 0.9em; color: #077c22; font-weight:bold;">+ Oferta Adicionada</span>
+                                <span style="font-size: 0.85em; color: #555;">Oferta Adicionada</span>
                             </div>
                         </div>
-                        <div style="font-weight: bold; color: #077C22;">R$ ${preco.toFixed(2).replace('.',',')}</div>
+                        <div style="font-weight: bold;">R$ ${preco.toFixed(2).replace('.', ',')}</div>
                     </div>
                 `;
             });
@@ -345,12 +334,11 @@
             return total;
         }
 
-        // 4. LISTENERS (Ao clicar no checkbox, atualiza tudo)
         document.querySelectorAll('._orderbump').forEach(el => {
             el.addEventListener('change', atualizarInterface);
         });
 
-        // 5. CEP (API ViaCEP)
+        // 4. CEP
         document.getElementById('cep').addEventListener('blur', async function() {
             const val = this.value.replace(/\D/g, '');
             if(val.length === 8) {
@@ -369,10 +357,9 @@
             }
         });
 
-        // 6. INICIALIZA
+        // 5. Pagamento
         atualizarInterface();
-
-        // 7. BOTÃO PAGAR
+        
         paymentButton.addEventListener('click', async () => {
             const nome = document.getElementById('nome').value.trim();
             const cpf = document.getElementById('cpf').value.trim();
@@ -387,17 +374,13 @@
             paymentButton.disabled = true;
             paymentButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
-            // Monta lista de itens para envio
             let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
-            let itensPayload = carrinho
-                .filter(i => !i.id || !String(i.id).startsWith('bump-'))
-                .map(i => ({
-                    nome: i.nome,
-                    preco: getPrice(i.preco),
-                    quantidade: parseInt(i.quantidade) || 1
-                }));
+            let itensPayload = carrinho.filter(i => !i.id || !String(i.id).startsWith('bump-')).map(i => ({
+                nome: i.nome,
+                preco: parseFloat(String(i.preco).replace(',','.')),
+                quantidade: i.quantidade
+            }));
 
-            // Adiciona Bumps selecionados ao payload
             document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
                 itensPayload.push({
                     nome: checkbox.getAttribute('o-name'),
@@ -408,7 +391,7 @@
 
             const payload = {
                 customer: { nome, cpf, telefone: tel, email: "cliente@email.com" },
-                total: atualizarInterface(), // Pega o total calculado corretamente
+                total: atualizarInterface(),
                 items: itensPayload
             };
 
@@ -423,7 +406,6 @@
 
                 if (response.ok && result.success) {
                     const dataStr = encodeURIComponent(JSON.stringify(result));
-                    // Redireciona para a página de pagamento (3 níveis acima)
                     window.location.href = `../../../payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${dataStr}`;
                 } else {
                     throw new Error(result.message || "Erro na API.");
