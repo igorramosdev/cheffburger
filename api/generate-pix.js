@@ -43,16 +43,20 @@ module.exports = async (req, res) => {
             amountFloat = parseFloat(total);
         }
 
-        if (isNaN(amountFloat)) amountFloat = 0;
+        if (isNaN(amountFloat) || amountFloat <= 0) {
+            return res.status(400).json({ success: false, message: "Valor total inválido." });
+        }
+        
         const amountInCents = Math.round(amountFloat * 100);
 
-        // --- CORREÇÃO CRÍTICA AQUI ---
-        // Adicionado o ":x" conforme a documentação da Otimize
+        // Autenticação (Com o :x que fez funcionar)
         const authString = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
 
+        // --- CORREÇÃO DO PAYLOAD (422) ---
+        // Ajustado para camelCase conforme a mensagem de erro da API
         const payload = {
             amount: amountInCents,
-            payment_method: "pix",
+            paymentMethod: "pix", // <-- AQUI ESTAVA O ERRO (era payment_method)
             checkout: "api",
             customer: {
                 name: customer.nome || "Cliente",
@@ -65,20 +69,20 @@ module.exports = async (req, res) => {
             },
             items: items && items.length > 0 ? items.map(item => ({
                 title: item.nome || item.title || "Produto",
-                unit_price: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100),
+                unitPrice: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100), // <-- Ajustado para unitPrice
                 quantity: parseInt(item.quantidade || item.quantity || 1),
                 tangible: true
             })) : [
                 {
                     title: "Pedido Delivery",
-                    unit_price: amountInCents,
+                    unitPrice: amountInCents,
                     quantity: 1,
                     tangible: true
                 }
             ]
         };
 
-        console.log("Enviando para Otimize com Auth corrigido...");
+        console.log("Enviando Payload Corrigido:", JSON.stringify(payload));
 
         const response = await axios.post(API_URL, payload, {
             headers: {
@@ -92,7 +96,7 @@ module.exports = async (req, res) => {
         return res.status(200).json({
             success: true,
             transactionId: data.id,
-            pix_copy_paste: data.pix.qrcode_text,
+            pix_copy_paste: data.pix.qrcode_text, // A API pode retornar diferente, mas geralmente é essa estrutura
             qr_code_base64: data.pix.qrcode_image,
             amount: amountFloat,
             customer: customer,
@@ -104,9 +108,14 @@ module.exports = async (req, res) => {
         const statusCode = error.response?.status;
         console.error("ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
 
+        // Melhora a mensagem de erro para você ver no alerta
+        const msg = errorData?.error?.message || 
+                    (errorData?.errors ? JSON.stringify(errorData.errors) : "") || 
+                    error.message;
+
         return res.status(statusCode || 500).json({
             success: false,
-            message: `Falha (${statusCode}): ${errorData?.error?.message || errorData?.message || error.message}`,
+            message: `Falha (422/500): ${msg}`,
             details: errorData
         });
     }
