@@ -10,34 +10,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* FIX DE RESPONSIVIDADE DO FOOTER */
+    /* Estilos do Pagamento */
     @media screen and (max-width: 768px) {
-        footer {
-            position: relative !important;
-            margin-top: 30px !important;
-            bottom: auto !important;
-        }
-        .containerFinalizar {
-            margin-bottom: 20px !important;
-        }
+        footer { position: relative !important; margin-top: 30px !important; bottom: auto !important; }
     }
-
     h1, h2 { color: #ea1d2c; }
     header#topo .cover { background-color: #ea1d2c; }
-    .btn, a.voltar { background: #ea1d2c; }
+    .btn, a.voltar { background: #ea1d2c; color: white; }
     
-    #timer-box { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
-    #fallback-area { display: none; background: #fff4f4; padding: 20px; border: 1px dashed #ea1d2c; text-align: center; margin-top: 20px; border-radius: 10px; }
+    .copy-code { width: 100%; background-color: #ea1d2c; color: white; border: none; border-radius: 50px; padding: 15px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; font-size: 12px; color: #555; }
     
-    .copy-code { width: 100%; background-color: #ea1d2c; color: white; border: none; border-radius: 50px; padding: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; }
-    
-    textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; font-size: 12px; }
     #qrcode { display: flex; justify-content: center; margin: 20px 0; }
     #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
+    
+    #timer-box { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
+    #fallback-area { display: none; background: #fff4f4; padding: 20px; border: 1px dashed #ea1d2c; text-align: center; border-radius: 10px; margin-top: 20px; }
 
     .steps { display: flex; justify-content: space-between; margin-top: 30px; opacity: 0.8; }
-    .step { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
-    .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .step { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
+    .s-circle { width: 25px; height: 25px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     .current-step { color: #ea1d2c; font-weight: bold; opacity: 1; }
     .current-step .s-circle { border-color: #ea1d2c; color: #ea1d2c; }
   </style>
@@ -53,9 +45,9 @@
     </div>
   </header>
 
-  <div class="payment-area" style="max-width: 600px; margin: 40px auto; padding: 0 10px;">
-    <div class="container containerFinalizar" style="background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-      <h2 style="text-align: center">Falta pouco!</h2>
+  <div class="payment-area" style="max-width: 600px; margin: 40px auto; padding: 0 15px;">
+    <div class="container containerFinalizar" style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+      <h2 style="text-align: center" id="main-title">Falta pouco!</h2>
       <h3 style="text-align: center; font-size: 1.1rem; color: #555;">Pagamento via Pix</h3>
       
       <div id="detalhesProduto">
@@ -66,28 +58,29 @@
           <div id="active-payment-area">
               <div id="qrcode"></div>
               <textarea id="pix-text" readonly onclick="this.select()"></textarea>
-              <button class="copy-code" id="btn-copy">COPIAR CÓDIGO PIX</button>
+              <button class="copy-code" id="btn-copy"><i class="fa fa-copy"></i> COPIAR CÓDIGO PIX</button>
           </div>
 
           <div id="fallback-area">
-              <h3 style="color:#ea1d2c; margin: 0 0 10px 0;">O código expirou</h3>
+              <h3 style="margin: 0 0 10px 0; color: #ea1d2c;">O código expirou</h3>
               <p>Gere um novo código para finalizar:</p>
               <button class="copy-code" id="btn-renew" style="background: #077c22;" onclick="renovarPix()">GERAR NOVO PIX</button>
           </div>
 
           <div class="how-to-pay" style="margin-top: 30px;">
-            <h3 style="color: #ea1d2c">Passo a passo:</h3>
-            <ul style="padding-left: 20px; color: #555; line-height: 1.6;">
+            <h3 style="color: #ea1d2c; font-size: 1rem;">Passo a passo:</h3>
+            <ul style="padding-left: 20px; color: #555; line-height: 1.6; font-size: 0.9rem;">
                <li>Abra o app do seu banco.</li>
-               <li>Escolha Pix > Ler QR Code ou Copia e Cola.</li>
+               <li>Escolha <b>Pix</b> > <b>Ler QR Code</b> ou <b>Copia e Cola</b>.</li>
+               <li>Escaneie ou cole o código acima.</li>
                <li>Confirme o pagamento.</li>
             </ul>
           </div>
 
           <div class="steps">
-            <div class="step current-step"><div class="s-circle">1</div> <span>Pagar</span></div>
-            <div class="step"><div class="s-circle">2</div> <span>Aprovado</span></div>
-            <div class="step"><div class="s-circle">3</div> <span>Entrega</span></div>
+            <div class="step current-step"><div class="s-circle">1</div> Pagar</div>
+            <div class="step"><div class="s-circle">2</div> Aprovado</div>
+            <div class="step"><div class="s-circle">3</div> Entrega</div>
           </div>
 
         </div>
@@ -95,11 +88,9 @@
     </div>
   </div>
 
-  <footer>
-    <div style="text-align: center; padding: 20px; color: #fff; background: #ea1d2c;">
-        <b>Cheff Burguer</b><br>
-        <span style="font-size: 0.9rem;">CNPJ: 37.XXX.253/0001-51</span>
-    </div>
+  <footer style="background: #ea1d2c; color: white; text-align: center; padding: 20px; margin-top: 40px;">
+    <b>Cheff Burguer</b><br>
+    <span style="font-size: 0.9rem;">CNPJ: 37.XXX.253/0001-51</span>
   </footer>
 
   <script>
@@ -112,10 +103,11 @@
 
         try {
             currentPaymentData = JSON.parse(decodeURIComponent(dataParam));
+            if(currentPaymentData.customer?.nome) {
+                document.getElementById('main-title').textContent = `Falta pouco, ${currentPaymentData.customer.nome.split(" ")[0]}!`;
+            }
             renderInterface(currentPaymentData);
-        } catch (e) {
-            console.error(e);
-        }
+        } catch (e) { console.error(e); }
     });
 
     function renderInterface(data) {
@@ -148,29 +140,26 @@
         btn.textContent = 'COPIADO!';
         btn.style.backgroundColor = '#077c22';
         setTimeout(() => {
-            btn.textContent = original;
+            btn.textContent = 'COPIAR CÓDIGO PIX';
             btn.style.backgroundColor = '#ea1d2c';
         }, 2000);
     });
 
     function startTimer(duration) {
-        let timer = duration, minutes, seconds;
-        const display = document.getElementById('time-display');
+        let timer = duration;
         clearInterval(countdownInterval);
         
         countdownInterval = setInterval(() => {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.textContent = minutes + ":" + seconds;
+            let min = Math.floor(timer / 60);
+            let sec = timer % 60;
+            document.getElementById('time-display').textContent = `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
 
             if (--timer < 0) {
                 clearInterval(countdownInterval);
                 clearInterval(checkInterval);
                 document.getElementById('active-payment-area').style.display = 'none';
                 document.getElementById('fallback-area').style.display = 'block';
-                display.textContent = "EXPIRADO";
+                document.getElementById('time-display').textContent = "EXPIRADO";
             }
         }, 1000);
     }

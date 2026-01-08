@@ -1,82 +1,73 @@
 const axios = require('axios');
 
+// Busca a chave segura do ambiente
 const RAW_KEY = process.env.OTIMIZE_SECRET_KEY || '';
 const SECRET_KEY = RAW_KEY.trim(); 
 const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
 module.exports = async (req, res) => {
-    // Configuração de CORS
+    // Configurações de Segurança (CORS)
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
+    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Método não permitido.' });
 
-    if (!SECRET_KEY) {
-        return res.status(500).json({ success: false, message: "Erro: Chave de API não configurada na Vercel." });
-    }
+    if (!SECRET_KEY) return res.status(500).json({ success: false, message: "Erro de configuração do servidor." });
 
     try {
         const { customer, total, items } = req.body;
 
-        // 1. Sanitização (CPF e Telefone)
+        // 1. Limpeza de Dados (Remove pontos e traços)
         const cleanCPF = customer?.cpf ? customer.cpf.replace(/\D/g, '') : '';
-        
-        // --- CORREÇÃO DO TELEFONE ---
-        // Remove tudo que não é número (parênteses, traços, espaços)
         const cleanPhone = customer?.telefone ? customer.telefone.replace(/\D/g, '') : '';
 
+        // 2. Validação Obrigatória (Regra de Negócio)
+        if (!cleanCPF || cleanCPF.length !== 11) {
+            return res.status(400).json({ success: false, message: "Por favor, informe um CPF válido." });
+        }
+
+        // 3. Tratamento de Valores
         let amountFloat = 0;
         if (typeof total === 'string') {
             amountFloat = parseFloat(total.replace('R$', '').replace(/\./g, '').replace(',', '.'));
         } else {
             amountFloat = parseFloat(total);
         }
-
         const amountInCents = Math.round(amountFloat * 100);
+
+        // 4. Autenticação na Otimize
         const authString = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
 
+        // 5. Montagem do Payload (Padrão CamelCase exigido)
         const payload = {
             amount: amountInCents,
             paymentMethod: "pix",
             checkout: "api",
             postbackUrl: "https://seusite.com/api/webhook",
-            
-            pix: {
-                expiresInSeconds: 1800
-            },
-
+            pix: { expiresInSeconds: 1800 },
             customer: {
                 name: customer.nome || "Cliente",
                 email: customer.email || "cliente@email.com",
-                phone: cleanPhone, // <--- Enviando telefone limpo
+                phone: cleanPhone, 
                 document: {
                     number: cleanCPF,
                     type: "cpf"
                 }
             },
-
             items: items && items.length > 0 ? items.map(item => ({
                 title: item.nome || item.title || "Produto",
                 unitPrice: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100),
                 quantity: parseInt(item.quantidade || item.quantity || 1),
                 tangible: true
             })) : [
-                {
-                    title: "Pedido Delivery",
-                    unitPrice: amountInCents,
-                    quantity: 1,
-                    tangible: true
-                }
+                { title: "Pedido Delivery", unitPrice: amountInCents, quantity: 1, tangible: true }
             ]
         };
 
-        console.log("Enviando Payload:", JSON.stringify(payload));
+        console.log("Processando Pix para:", cleanCPF);
 
         const response = await axios.post(API_URL, payload, {
             headers: {
@@ -100,21 +91,12 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         const errorData = error.response?.data;
-        const statusCode = error.response?.status;
+        const statusCode = error.response?.status || 500;
         console.error("ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
-
-        let msg = "Erro desconhecido";
-        if (errorData?.errors) {
-             msg = JSON.stringify(errorData.errors);
-        } else if (errorData?.message) {
-             msg = errorData.message;
-        } else if (errorData?.error?.message) {
-             msg = errorData.error.message;
-        }
-
-        return res.status(statusCode || 500).json({
+        
+        return res.status(statusCode).json({
             success: false,
-            message: `Falha (${statusCode}): ${msg}`,
+            message: `Erro ao processar: ${errorData?.error?.message || error.message}`,
             details: errorData
         });
     }
