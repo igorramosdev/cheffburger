@@ -1,9 +1,7 @@
 const axios = require('axios');
 
-// 1. SEGURANÇA: Busca a chave nas variáveis de ambiente
 const RAW_KEY = process.env.OTIMIZE_SECRET_KEY || '';
 const SECRET_KEY = RAW_KEY.trim(); 
-
 const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
 module.exports = async (req, res) => {
@@ -16,19 +14,11 @@ module.exports = async (req, res) => {
         'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
     );
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ success: false, message: 'Método não permitido.' });
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Método não permitido.' });
 
     if (!SECRET_KEY) {
-        return res.status(500).json({
-            success: false,
-            message: "Erro de configuração: Chave de API não encontrada na Vercel."
-        });
+        return res.status(500).json({ success: false, message: "Chave de API não configurada." });
     }
 
     try {
@@ -37,6 +27,7 @@ module.exports = async (req, res) => {
         // Sanitização
         const cleanCPF = customer?.cpf ? customer.cpf.replace(/\D/g, '') : '';
         let amountFloat = 0;
+        
         if (typeof total === 'string') {
             amountFloat = parseFloat(total.replace('R$', '').replace(/\./g, '').replace(',', '.'));
         } else {
@@ -48,20 +39,18 @@ module.exports = async (req, res) => {
         }
         
         const amountInCents = Math.round(amountFloat * 100);
-
-        // Autenticação (Com o :x que fez funcionar)
         const authString = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
 
-        // --- CORREÇÃO DO PAYLOAD (422) ---
-        // Ajustado para camelCase conforme a mensagem de erro da API
+        // --- CORREÇÃO DO PAYLOAD (Voltando para snake_case) ---
         const payload = {
             amount: amountInCents,
-            paymentMethod: "pix", // <-- AQUI ESTAVA O ERRO (era payment_method)
+            payment_method: "pix", // Voltamos para snake_case
             checkout: "api",
+            postback_url: "https://seusite.com/api/webhook", // Opcional, mas bom ter
             customer: {
                 name: customer.nome || "Cliente",
                 email: customer.email || "cliente@email.com",
-                phone: customer.telefone || "",
+                phone_number: customer.telefone || "", // Algumas APIs usam phone_number
                 document: {
                     number: cleanCPF,
                     type: "cpf"
@@ -69,20 +58,20 @@ module.exports = async (req, res) => {
             },
             items: items && items.length > 0 ? items.map(item => ({
                 title: item.nome || item.title || "Produto",
-                unitPrice: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100), // <-- Ajustado para unitPrice
+                unit_price: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100),
                 quantity: parseInt(item.quantidade || item.quantity || 1),
                 tangible: true
             })) : [
                 {
                     title: "Pedido Delivery",
-                    unitPrice: amountInCents,
+                    unit_price: amountInCents,
                     quantity: 1,
                     tangible: true
                 }
             ]
         };
 
-        console.log("Enviando Payload Corrigido:", JSON.stringify(payload));
+        console.log("Enviando Payload Snake_Case:", JSON.stringify(payload));
 
         const response = await axios.post(API_URL, payload, {
             headers: {
@@ -96,8 +85,8 @@ module.exports = async (req, res) => {
         return res.status(200).json({
             success: true,
             transactionId: data.id,
-            pix_copy_paste: data.pix.qrcode_text, // A API pode retornar diferente, mas geralmente é essa estrutura
-            qr_code_base64: data.pix.qrcode_image,
+            pix_copy_paste: data.pix_qrcode_text || data.pix?.qrcode_text || data.pix?.qrcode, // Tenta várias formas comuns
+            qr_code_base64: data.pix_qrcode_image || data.pix?.qrcode_image, 
             amount: amountFloat,
             customer: customer,
             expiration_seconds: 1800
@@ -108,14 +97,17 @@ module.exports = async (req, res) => {
         const statusCode = error.response?.status;
         console.error("ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
 
-        // Melhora a mensagem de erro para você ver no alerta
-        const msg = errorData?.error?.message || 
-                    (errorData?.errors ? JSON.stringify(errorData.errors) : "") || 
-                    error.message;
+        // Pega mensagens de erro aninhadas se existirem
+        let msg = "Erro desconhecido";
+        if (errorData?.errors) {
+             msg = JSON.stringify(errorData.errors);
+        } else if (errorData?.message) {
+             msg = errorData.message;
+        }
 
         return res.status(statusCode || 500).json({
             success: false,
-            message: `Falha (422/500): ${msg}`,
+            message: `Falha (${statusCode}): ${msg}`,
             details: errorData
         });
     }
