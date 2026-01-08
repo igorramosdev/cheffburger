@@ -18,75 +18,85 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Método não permitido.' });
 
     if (!SECRET_KEY) {
-        return res.status(500).json({ success: false, message: "Chave de API não configurada." });
+        return res.status(500).json({ success: false, message: "Erro: Chave de API não configurada na Vercel." });
     }
 
     try {
         const { customer, total, items } = req.body;
 
-        // Sanitização
+        // 1. Sanitização
         const cleanCPF = customer?.cpf ? customer.cpf.replace(/\D/g, '') : '';
-        let amountFloat = 0;
         
+        let amountFloat = 0;
         if (typeof total === 'string') {
             amountFloat = parseFloat(total.replace('R$', '').replace(/\./g, '').replace(',', '.'));
         } else {
             amountFloat = parseFloat(total);
         }
 
-        if (isNaN(amountFloat) || amountFloat <= 0) {
-            return res.status(400).json({ success: false, message: "Valor total inválido." });
-        }
-        
+        // Garante valor inteiro em centavos
         const amountInCents = Math.round(amountFloat * 100);
+
+        // 2. Autenticação (Mantendo o :x que funcionou)
         const authString = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
 
-        // --- CORREÇÃO DO PAYLOAD (Voltando para snake_case) ---
+        // 3. Payload seguindo a documentação (CamelCase)
         const payload = {
             amount: amountInCents,
-            payment_method: "pix", // Voltamos para snake_case
+            paymentMethod: "pix", // <--- EXATAMENTE COMO NA DOC
             checkout: "api",
-            postback_url: "https://seusite.com/api/webhook", // Opcional, mas bom ter
+            postbackUrl: "https://seusite.com/api/webhook", // Opcional, mas recomendado
+            
+            // Configuração específica do Pix (Exigido por algumas validações)
+            pix: {
+                expiresInSeconds: 1800 // 30 minutos
+            },
+
             customer: {
                 name: customer.nome || "Cliente",
                 email: customer.email || "cliente@email.com",
-                phone_number: customer.telefone || "", // Algumas APIs usam phone_number
+                phone: customer.telefone || "", 
                 document: {
                     number: cleanCPF,
                     type: "cpf"
                 }
             },
+
+            // Itens também em CamelCase (unitPrice)
             items: items && items.length > 0 ? items.map(item => ({
                 title: item.nome || item.title || "Produto",
-                unit_price: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100),
+                unitPrice: Math.round(parseFloat(item.preco || item.unitPrice || item.unit_price || amountFloat) * 100),
                 quantity: parseInt(item.quantidade || item.quantity || 1),
                 tangible: true
             })) : [
                 {
                     title: "Pedido Delivery",
-                    unit_price: amountInCents,
+                    unitPrice: amountInCents,
                     quantity: 1,
                     tangible: true
                 }
             ]
         };
 
-        console.log("Enviando Payload Snake_Case:", JSON.stringify(payload));
+        console.log("Enviando Payload CamelCase:", JSON.stringify(payload));
 
         const response = await axios.post(API_URL, payload, {
             headers: {
                 'Authorization': `Basic ${authString}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json' // Forçando cabeçalho de aceitação
             }
         });
 
         const data = response.data;
 
+        // Sucesso!
         return res.status(200).json({
             success: true,
             transactionId: data.id,
-            pix_copy_paste: data.pix_qrcode_text || data.pix?.qrcode_text || data.pix?.qrcode, // Tenta várias formas comuns
-            qr_code_base64: data.pix_qrcode_image || data.pix?.qrcode_image, 
+            // A API pode retornar o código Pix em caminhos diferentes, garantimos todos:
+            pix_copy_paste: data.pix?.qrcode_text || data.pix?.qrcode || data.pix_qrcode_text,
+            qr_code_base64: data.pix?.qrcode_image || data.pix_qrcode_image,
             amount: amountFloat,
             customer: customer,
             expiration_seconds: 1800
@@ -95,14 +105,18 @@ module.exports = async (req, res) => {
     } catch (error) {
         const errorData = error.response?.data;
         const statusCode = error.response?.status;
+        
         console.error("ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
 
-        // Pega mensagens de erro aninhadas se existirem
+        // Formata mensagem de erro amigável
         let msg = "Erro desconhecido";
         if (errorData?.errors) {
+             // Se a API retornar lista de erros, mostramos o primeiro
              msg = JSON.stringify(errorData.errors);
         } else if (errorData?.message) {
              msg = errorData.message;
+        } else if (errorData?.error?.message) {
+             msg = errorData.error.message;
         }
 
         return res.status(statusCode || 500).json({
