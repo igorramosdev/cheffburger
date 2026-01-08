@@ -16,67 +16,98 @@
   <link rel="stylesheet" href="../../../icon-25?family=Material+Icons">
 
   <style>
-    /* === CORREÇÕES VISUAIS FORÇADAS === */
+    /* === CORREÇÕES DE ESTILO ORIGINAIS === */
     
-    /* 1. Botão Voltar Fixo no Topo */
+    /* Inputs com design original */
+    .input input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc; /* Borda suave */
+        border-radius: 8px; /* Arredondamento */
+        background-color: #fff;
+        font-size: 1rem;
+        outline: none;
+        transition: border 0.3s;
+    }
+    .input input:focus { border-color: #EA1D2C; }
+    .input label { font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block; color: #333; }
+    .input { margin-bottom: 15px; }
+
+    /* Botão Voltar Fixo */
     a.voltar {
-        display: table;
-        padding: 10px 20px;
+        display: flex;
+        width: fit-content;
+        padding: 8px 15px;
         align-items: center;
+        gap: 5px;
         background: #EA1D2C;
         color: #ffffff;
         border-radius: 100px;
-        margin: 10px 0;
         font-size: 12px;
         text-decoration: none;
-        position: fixed !important; /* Força fixação */
-        top: 10px;
-        left: 10px;
+        font-weight: bold;
+        position: fixed !important;
+        top: 15px;
+        left: 15px;
         z-index: 9999;
-    }
-    
-    /* 2. Container Principal */
-    .containerFinalizar {
-        max-width: 800px;
-        border: 2px solid #cecece;
-        border-radius: 20px;
-        padding: 20px 30px;
-        margin-top: 20px;
-        margin-bottom: 50px;
-        background: white;
-        margin-left: auto;
-        margin-right: auto;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    /* 3. Ajuste do Carrinho e Produtos */
+    /* Container Principal */
+    .containerFinalizar {
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    /* Header */
+    header#topo .cover { 
+        background-color: #EA1D2C; 
+        height: 150px; /* Altura fixa para o banner */
+        position: relative;
+    }
+    .logo {
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Produtos no Carrinho */
     .cart-product { 
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
         margin-bottom: 10px; 
         padding: 10px; 
-        border: 1px solid #EA1D2C; 
+        border: 1px solid #eee;
+        border-left: 4px solid #EA1D2C; 
         border-radius: 5px; 
         background: #fff;
     }
     .c-p-01 { display: flex; align-items: center; gap: 15px; }
-    
-    /* Importante: Estrutura da imagem para o CSS original */
-    .c-p-01 .img {
-        width: 60px;
-        height: 60px;
-        overflow: hidden;
-        border-radius: 5px;
-    }
-    .c-p-01 .img img { 
-        width: 100%; 
-        height: 100%; 
+    .c-p-01 img { 
+        width: 50px; 
+        height: 50px; 
         object-fit: cover; 
+        border-radius: 5px; 
     }
-    
-    .product-name { font-weight: bold; font-size: 0.95rem; line-height: 1.2; display: block; margin-bottom: 3px; }
-    
-    /* 4. Order Bumps */
+    .product-name { font-weight: bold; font-size: 0.9rem; line-height: 1.2; }
+
+    /* Order Bumps */
     .orderbump { 
         border: 2px solid #eee; 
         border-radius: 10px; 
@@ -89,52 +120,46 @@
         transition: 0.2s;
     }
     .orderbump:hover { border-color: #EA1D2C; }
-    .orderbump input[type="checkbox"] { accent-color: #ea1d2c; width: 20px; height: 20px; }
+    .orderbump input[type="checkbox"] { accent-color: #EA1D2C; width: 20px; height: 20px; }
 
-    /* 5. Inputs */
-    .input { margin-bottom: 15px; }
-    .input label { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; display: block; }
-    .input input { 
-        width: 100%; 
-        padding: 12px; 
-        border-radius: 10px; 
-        border: 1px solid #ccc; 
-        font-size: 1rem; 
-    }
-
-    /* 6. Botão Pagar */
+    /* Botão Pagar */
     .pay-btn { 
         width: 100%; 
         background-color: #077C22; 
         color: white; 
-        padding: 15px; 
+        padding: 18px; 
         border: none; 
         border-radius: 50px; 
         font-weight: bold; 
         cursor: pointer; 
-        font-size: 1.2rem; 
-        margin-top: 30px; 
-        display: block; 
+        font-size: 1.1rem; 
+        margin-top: 20px; 
+        text-transform: uppercase;
+        box-shadow: 0 4px 10px rgba(7, 124, 34, 0.3);
     }
     
-    /* 7. Footer */
+    /* Footer */
     footer {
-        position: static !important; /* Não flutua */
-        width: 100%;
+        position: static !important;
         background: #EA1D2C;
         color: white;
         text-align: center;
         padding: 20px;
-        margin-top: 40px;
+        margin-top: 50px;
+        width: 100%;
     }
 
-    /* Mobile */
+    /* Responsividade */
     @media screen and (max-width: 768px) {
-        .containerFinalizar { border: none; padding: 0 15px; }
-        .payment-area { margin-top: 0; }
+        .containerFinalizar { border: none; padding: 0 15px; margin-top: 60px; }
+        footer { margin-bottom: 0; }
     }
     
     .hidden { display: none !important; }
+    
+    /* Estilo Reviews */
+    .review { border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+    .r-top { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
   </style>
 </head>
 
@@ -142,17 +167,16 @@
   <a class="voltar" href="../cart.html"><i class="fa fa-chevron-left"></i> VOLTAR</a>
 
   <header id="topo">
-    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('./mVDwQN39/banner-237f7496-1.webp');">
-      <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center;">
-        <img src="./SN8gVgwk/logocheff-1.png" style="width: 100%;">
+    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp');">
+      <div class="logo">
+        <img src="https://cheffburger.vercel.app/shop/681aaff4852ac923b1bcabfb/SN8gVgwk/logocheff.png" style="width: 100%; border-radius:50%;">
       </div>
-      <div class="borda"></div>
     </div>
   </header>
 
   <div class="payment-area">
     <div class="container containerFinalizar">
-      <h2 style="width: 100%; text-align: center; margin-bottom: 30px; color: #EA1D2C;" id="checkout-top">Finalize seu pedido</h2>
+      <h2 style="width: 100%; text-align: center; margin-bottom: 30px; color: #EA1D2C;">Finalize seu pedido</h2>
       
       <div id="detalhesProduto">
         <div class="payment">
@@ -172,8 +196,9 @@
             <input type="text" id="telefone" placeholder="(00) 00000-0000" required>
           </div>
 
-          <h3 style="width: 100%; text-align: start; margin-top: 25px; color: #EA1D2C;">Dados da entrega</h3>
-          <div class="input">
+          <h3 style="width: 100%; text-align: start; margin-top: 25px; color: #EA1D2C; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">Dados da entrega</h3>
+          
+          <div class="input" style="margin-top: 15px;">
             <label>CEP <b>*</b></label>
             <input type="text" id="cep" placeholder="00000-000" required>
           </div>
@@ -192,39 +217,35 @@
         </div>
 
         <div class="payment">
-          <h3 style="width: 100%; text-align: start; margin-bottom: 15px; color: #EA1D2C;">Ofertas disponíveis:</h3>
+          <h3 style="width: 100%; text-align: start; margin-bottom: 15px; color: #EA1D2C; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">Ofertas disponíveis:</h3>
 
           <label class="cart-product orderbump" for="bump1">
             <div class="c-p-01">
-              <div class="img">
-                <img src="./d4cJNKJ0/1761874938117blob.webp">
-              </div>
+              <img src="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp">
               <div class="info">
                 <span class="product-name">Bolo de Pote Brigadeiro</span>
                 <p style="color:#077c22; font-weight:bold; margin:0;">R$ 8,00</p>
               </div>
             </div>
             <div class="add">
-              <input type="checkbox" id="bump1" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" o-image="./d4cJNKJ0/1761874938117blob.webp">
+              <input type="checkbox" id="bump1" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" o-image="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp">
             </div>
           </label>
 
           <label class="cart-product orderbump" for="bump2">
             <div class="c-p-01">
-              <div class="img">
-                <img src="./hqXP2qX/1761874938086blob.webp">
-              </div>
+              <img src="https://i.ibb.co/hqXP2qX/1761874938086blob.webp">
               <div class="info">
                 <span class="product-name">Bolo de Pote Prestígio</span>
                 <p style="color:#077c22; font-weight:bold; margin:0;">R$ 8,00</p>
               </div>
             </div>
             <div class="add">
-              <input type="checkbox" id="bump2" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" o-image="./hqXP2qX/1761874938086blob.webp">
+              <input type="checkbox" id="bump2" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" o-image="https://i.ibb.co/hqXP2qX/1761874938086blob.webp">
             </div>
           </label>
 
-          <h3 style="width: 100%; text-align: start; margin-bottom: 15px; margin-top: 30px; color: #EA1D2C;">Seu carrinho:</h3>
+          <h3 style="width: 100%; text-align: start; margin-bottom: 15px; margin-top: 30px; color: #EA1D2C; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px;">Seu carrinho:</h3>
           
           <div id="checkout-cart-items" style="margin-bottom: 20px;"></div>
 
@@ -238,25 +259,25 @@
         </div>
 
         <div class="reviews" style="margin-top: 40px; display: flex; flex-direction: column; gap: 15px;">
-          <div class="review" style="border: 1px solid #eee; padding: 15px; border-radius: 10px;">
-            <div class="r-top" style="display:flex; align-items:center; gap:10px; margin-bottom:5px; font-weight:bold;">
-              <img src="./reclameaqui-assets/libraries/header/images/logo-mobile.svg" width="30">
+          <div class="review">
+            <div class="r-top">
+              <img src="https://cheffburger.vercel.app/shop/681aaff4852ac923b1bcabfb/checkout/reclameaqui-assets/libraries/header/images/logo-mobile-1.svg">
               <span>Reclame Aqui</span>
             </div>
             <p style="font-size:0.9rem; margin:0;">O consumidor avaliou o atendimento dessa empresa como <b>ÓTIMO</b>. A nota média nos últimos 6 meses é <b>9.9/10</b>.</p>
           </div>
 
-          <div class="review" style="border: 1px solid #eee; padding: 15px; border-radius: 10px;">
-            <div class="r-top" style="display:flex; align-items:center; gap:10px; margin-bottom:5px; font-weight:bold;">
-              <img src="./whitecheckout/cdn/business/VCB2G6B18/reviews/KStCsh2tKsKCF5daRrOAWdnMU4n83HbnnO5hXzJ7.jpg" style="width:30px; border-radius:50%;">
+          <div class="review">
+            <div class="r-top">
+              <img src="https://cheffburger.vercel.app/shop/681aaff4852ac923b1bcabfb/checkout/whitecheckout/cdn/business/VCB2G6B18/reviews/KStCsh2tKsKCF5daRrOAWdnMU4n83HbnnO5hXzJ7-1.jpg" style="border-radius: 50%;">
               <span>Ifood Parceiros</span>
             </div>
             <span style="font-size:0.9rem;">Empresa parceira verificada <i class="fa fa-check-circle" style="color:#3A97F8;"></i></span>
           </div>
           
-          <div class="review" style="border: 1px solid #eee; padding: 15px; border-radius: 10px;">
-            <div class="r-top" style="display:flex; align-items:center; gap:10px; margin-bottom:5px; font-weight:bold;">
-              <img src="./whitecheckout/cdn/business/VCB2G6B18/reviews/iBmtS32flP0Ruibmk7H1L9rPavkkZ07LiYbUNWce.png" width="30">
+          <div class="review">
+            <div class="r-top">
+              <img src="https://cheffburger.vercel.app/shop/681aaff4852ac923b1bcabfb/checkout/whitecheckout/cdn/business/VCB2G6B18/reviews/iBmtS32flP0Ruibmk7H1L9rPavkkZ07LiYbUNWce-1.png">
               <span>ANVISA</span>
             </div>
             <p style="font-size:0.9rem; margin:0;">Essa empresa possuí o selo de autorização para funcionamento <b>ANVISA</b>.</p>
@@ -297,7 +318,7 @@
             return isNaN(num) ? 0 : num;
         }
 
-        // 3. RENDERIZAÇÃO
+        // 3. RENDERIZAÇÃO E SOMA DE VALORES
         function atualizarInterface() {
             let carrinho = [];
             try {
@@ -308,7 +329,7 @@
             checkoutCartItemsContainer.innerHTML = '';
 
             // --- A) Itens do LocalStorage ---
-            // Filtra bumps antigos para não duplicar
+            // Filtra bumps antigos do localStorage para não duplicar visualmente
             let itensReais = carrinho.filter(i => !i.id || !String(i.id).startsWith('bump-'));
             
             if(itensReais.length === 0) {
@@ -320,17 +341,18 @@
                 let qtd = parseInt(item.quantidade) || 1;
                 total += preco * qtd;
 
-                // Imagem: usa placeholder se não tiver
+                // Imagem Placeholder se faltar
                 let img = item.imagem || 'https://placehold.co/60';
-                // Corrige caminho relativo se necessário
-                if(img && !img.startsWith('http') && !img.startsWith('./')) {
-                    img = '../../../' + img;
+                
+                // Ajuste de caminho se for local
+                if(img && !img.startsWith('http')) {
+                    img = '../../../' + img.replace('./', '');
                 }
 
                 checkoutCartItemsContainer.innerHTML += `
                     <div class="cart-product">
                         <div class="c-p-01">
-                            <div class="img"><img src="${img}"></div>
+                            <img src="${img}">
                             <div class="info">
                                 <span class="product-name">${item.nome}</span>
                                 <span style="font-size: 0.85em; color: #555;">${qtd} x R$ ${preco.toFixed(2).replace('.',',')}</span>
@@ -341,7 +363,7 @@
                 `;
             });
 
-            // --- B) Order Bumps Selecionados (Checkboxes) ---
+            // --- B) Order Bumps (Visualmente) ---
             document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
                 let nome = checkbox.getAttribute('o-name');
                 let preco = parseFloat(checkbox.getAttribute('price'));
@@ -349,11 +371,11 @@
                 
                 total += preco;
 
-                // Renderiza Bump na lista
+                // Insere HTML do Bump no carrinho visualmente
                 checkoutCartItemsContainer.innerHTML += `
                     <div class="cart-product" style="background-color: #f0fdf4; border-color: #077C22;">
                         <div class="c-p-01">
-                            <div class="img"><img src="${img}"></div>
+                            <img src="${img}">
                             <div class="info">
                                 <span class="product-name">${nome}</span>
                                 <span style="font-size: 0.85em; color: #077c22; font-weight:bold;">+ Oferta Adicionada</span>
@@ -368,13 +390,12 @@
             return total;
         }
 
-        // 4. EVENTOS
-        // Ao clicar nos bumps, re-renderiza tudo
+        // 4. LISTENERS (Ao clicar no checkbox, atualiza tudo)
         document.querySelectorAll('._orderbump').forEach(el => {
             el.addEventListener('change', atualizarInterface);
         });
 
-        // 5. CEP
+        // 5. CEP (API ViaCEP)
         document.getElementById('cep').addEventListener('blur', async function() {
             const val = this.value.replace(/\D/g, '');
             if(val.length === 8) {
@@ -411,7 +432,7 @@
             paymentButton.disabled = true;
             paymentButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
-            // Monta Itens Finais
+            // Monta lista de itens para envio
             let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
             let itensPayload = carrinho
                 .filter(i => !i.id || !String(i.id).startsWith('bump-'))
@@ -421,7 +442,7 @@
                     quantidade: parseInt(i.quantidade) || 1
                 }));
 
-            // Adiciona Bumps
+            // Adiciona Bumps selecionados ao payload
             document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
                 itensPayload.push({
                     nome: checkbox.getAttribute('o-name'),
@@ -432,7 +453,7 @@
 
             const payload = {
                 customer: { nome, cpf, telefone: tel, email: "cliente@email.com" },
-                total: atualizarInterface(), // Usa o total calculado na hora
+                total: atualizarInterface(), // Pega o total calculado corretamente
                 items: itensPayload
             };
 
@@ -447,7 +468,7 @@
 
                 if (response.ok && result.success) {
                     const dataStr = encodeURIComponent(JSON.stringify(result));
-                    // Redirecionamento Absoluto
+                    // Redireciona para a página de pagamento (3 níveis acima)
                     window.location.href = `../../../payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${dataStr}`;
                 } else {
                     throw new Error(result.message || "Erro na API.");
