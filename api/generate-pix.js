@@ -1,9 +1,9 @@
 const axios = require('axios');
 
-// 1. SEGURANÇA: Busca a chave nas variáveis de ambiente
-const SECRET_KEY = process.env.OTIMIZE_SECRET_KEY;
+// 1. SEGURANÇA: Busca e LIMPA a chave (remove espaços vazios)
+const RAW_KEY = process.env.OTIMIZE_SECRET_KEY || '';
+const SECRET_KEY = RAW_KEY.trim(); // <--- Remove espaços acidentais do copy-paste
 
-// 2. URL CORRETA DA OTIMIZE
 const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
 module.exports = async (req, res) => {
@@ -16,7 +16,6 @@ module.exports = async (req, res) => {
         'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
     );
 
-    // Responde ao "preflight" do navegador
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
@@ -25,29 +24,22 @@ module.exports = async (req, res) => {
         return res.status(405).json({ success: false, message: 'Método não permitido.' });
     }
 
-    // Validação da Chave de API
+    // DIAGNÓSTICO: Mostra no log da Vercel se a chave carregou (mostra só o começo)
+    console.log("Status da Chave:", SECRET_KEY ? `Carregada (Inicia com: ${SECRET_KEY.substring(0, 5)}...)` : "NÃO ENCONTRADA");
+
     if (!SECRET_KEY) {
-        console.error("ERRO CRÍTICO: Variável OTIMIZE_SECRET_KEY não encontrada.");
         return res.status(500).json({
             success: false,
-            message: "Erro de configuração no servidor: Chave de API não encontrada."
+            message: "Erro de configuração: Chave de API não encontrada na Vercel."
         });
     }
 
     try {
         const { customer, total, items } = req.body;
 
-        console.log("Processando Pix para:", customer?.nome);
-
-        // --- SANITIZAÇÃO DE DADOS ---
-
-        // 1. CPF (Remove não-números)
+        // Sanitização do CPF e Valor
         const cleanCPF = customer?.cpf ? customer.cpf.replace(/\D/g, '') : '';
-        if (!cleanCPF || cleanCPF.length !== 11) {
-            return res.status(400).json({ success: false, message: "CPF inválido. Informe apenas números." });
-        }
-
-        // 2. Valor (Converte para centavos)
+        
         let amountFloat = 0;
         if (typeof total === 'string') {
             amountFloat = parseFloat(total.replace('R$', '').replace(/\./g, '').replace(',', '.'));
@@ -58,12 +50,12 @@ module.exports = async (req, res) => {
         if (isNaN(amountFloat) || amountFloat <= 0) {
             return res.status(400).json({ success: false, message: "Valor total inválido." });
         }
+        
         const amountInCents = Math.round(amountFloat * 100);
 
-        // 3. Autenticação
+        // Autenticação Basic Auth Padrão (Chave + :)
         const authString = Buffer.from(`${SECRET_KEY}:`).toString('base64');
 
-        // 4. Montagem do Payload
         const payload = {
             amount: amountInCents,
             payment_method: "pix",
@@ -92,7 +84,8 @@ module.exports = async (req, res) => {
             ]
         };
 
-        // 5. Chamada à API Externa
+        console.log("Enviando para Otimize:", JSON.stringify(payload));
+
         const response = await axios.post(API_URL, payload, {
             headers: {
                 'Authorization': `Basic ${authString}`,
@@ -102,7 +95,6 @@ module.exports = async (req, res) => {
 
         const data = response.data;
 
-        // Sucesso
         return res.status(200).json({
             success: true,
             transactionId: data.id,
@@ -110,20 +102,20 @@ module.exports = async (req, res) => {
             qr_code_base64: data.pix.qrcode_image,
             amount: amountFloat,
             customer: customer,
-            expiration_seconds: 1800 // 30 min
+            expiration_seconds: 1800
         });
 
     } catch (error) {
-        console.error("Erro na API Otimize:", error.response?.data || error.message);
-        
-        // Tenta pegar a mensagem de erro específica da Otimize
-        const apiErrorMsg = error.response?.data?.error?.message || error.response?.data?.message;
-        const errorMessage = apiErrorMsg || error.message || "Erro desconhecido ao processar pagamento.";
-        
-        return res.status(500).json({
+        // Captura detalhada do erro da API
+        const errorData = error.response?.data;
+        const statusCode = error.response?.status;
+        console.error("ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
+
+        // Retorna a mensagem exata da Otimize para o frontend
+        return res.status(statusCode || 500).json({
             success: false,
-            message: "Falha ao gerar Pix: " + errorMessage,
-            details: error.response?.data
+            message: `Falha na Operadora (${statusCode}): ${errorData?.error?.message || errorData?.message || error.message}`,
+            details: errorData
         });
     }
 };
