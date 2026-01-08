@@ -13,8 +13,6 @@
 
   <style>
     /* === ESTILOS GERAIS === */
-    body { background-color: #f4f4f4; font-family: 'Poppins', sans-serif; }
-    
     footer {
         position: static !important;
         margin-top: 40px !important;
@@ -28,12 +26,12 @@
 
     .containerFinalizar {
         max-width: 600px;
-        margin: 20px auto;
+        margin: 40px auto;
         background: white;
-        border: 1px solid #ddd;
-        border-radius: 15px;
+        border: 2px solid #cecece;
+        border-radius: 20px;
         padding: 25px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
     h1, h2, h3 { color: #ea1d2c; }
@@ -41,10 +39,10 @@
     
     /* === ÁREA PIX === */
     #qrcode { display: flex; justify-content: center; margin: 20px 0; }
-    #qrcode img { max-width: 200px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
+    #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
     
     textarea { 
-        width: 100%; height: 70px; padding: 10px; 
+        width: 100%; height: 80px; padding: 10px; 
         border: 2px dashed #ea1d2c; border-radius: 10px; 
         background: #fafafa; resize: none; font-size: 12px; color: #555; outline: none;
     }
@@ -52,17 +50,16 @@
     .copy-code { 
         width: 100%; background-color: #ea1d2c; color: white; 
         border: none; border-radius: 50px; padding: 15px; 
-        cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 1rem;
-        box-shadow: 0 4px 10px rgba(234, 29, 44, 0.3);
+        cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 1rem;
     }
     .copy-code:hover { background-color: #c41421; }
     
-    #timer-box { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
+    #timer-box { font-size: 1.3rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
 
     /* === CARRINHO E PRODUTOS === */
     .cart-top { 
         margin-top: 30px; display: flex; align-items: center; justify-content: space-between;
-        cursor: pointer; background: #f9f9f9; padding: 15px; border-radius: 10px; 
+        cursor: pointer; background: #f9f9f9; padding: 12px; border-radius: 8px; 
         font-weight: bold; border: 1px solid #eee; color: #333;
     }
     .triangle { 
@@ -74,74 +71,66 @@
     .cart-body.active { display: block; }
 
     .cart-product { 
-        display: flex; justify-content: space-between; align-items: flex-start;
+        display: flex; justify-content: space-between; align-items: center; 
         margin-bottom: 10px; padding: 10px; 
-        border-bottom: 1px solid #eee; background: #fff;
+        border: 1px solid #EA1D2C; border-radius: 5px; background: #fff;
     }
-    .c-p-01 { display: flex; align-items: flex-start; gap: 15px; width: 100%; }
-    .c-p-01 .img { width: 50px; height: 50px; overflow: hidden; border-radius: 5px; flex-shrink: 0; }
+    .c-p-01 { display: flex; align-items: center; gap: 15px; width: 100%; }
+    .c-p-01 .img { width: 60px; height: 60px; overflow: hidden; border-radius: 5px; flex-shrink: 0; }
     .c-p-01 .img img { width: 100%; height: 100%; object-fit: cover; }
     .c-p-01 .info { display: flex; flex-direction: column; width: 100%; }
     
-    .product-name { font-weight: bold; font-size: 0.9rem; line-height: 1.3; color: #333; margin-bottom: 5px; }
-    .product-meta { font-size: 0.85rem; color: #666; display: flex; justify-content: space-between; width: 100%; }
-    .product-price { font-weight: bold; color: #077c22; }
-
+    .product-name { font-weight: bold; font-size: 0.9rem; line-height: 1.2; color: #333; margin-bottom: 5px; }
+    
     /* === ALERTAS E ABAS === */
-    .pix-security-alert { margin-top: 30px; }
+    .pix-security-alert { margin-top: 25px; }
     .alert-box { 
-        display: flex; gap: 15px; padding: 15px; 
+        display: flex; gap: 12px; padding: 15px; 
         background-color: #e3f2fd; border-left: 4px solid #2196f3; 
-        border-radius: 8px; margin-bottom: 15px; align-items: flex-start;
+        border-radius: 8px; margin-bottom: 10px; 
     }
     .alert-icon { font-size: 24px; color: #2196f3; }
-    .alert-content p { margin: 0; color: #0d47a1; font-size: 0.9rem; line-height: 1.5; }
-    .alert-content strong { color: #1565c0; display: block; margin-bottom: 5px; }
+    .alert-content p { margin: 0; color: #1976d2; font-size: 0.9rem; line-height: 1.4; }
+    .alert-content strong { display: block; margin-bottom: 5px; color: #1565c0; }
 
     .saiba-mais-toggle {
         display: flex; justify-content: space-between; align-items: center;
-        padding: 12px 15px; background: #f5f5f5; border-radius: 8px;
+        padding: 10px 15px; background: #f5f5f5; border-radius: 8px;
         cursor: pointer; font-size: 0.9rem; font-weight: 600; color: #555;
-        border: 1px solid #eee; transition: 0.3s;
+        border: 1px solid #eee; margin-top: 10px;
     }
-    .saiba-mais-toggle:hover { background: #eee; }
     .saiba-mais-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
     .saiba-mais-content.active { max-height: 1000px; }
 
     .bank-tabs { display: flex; gap: 10px; margin-top: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
     .bank-tab {
         padding: 8px 15px; background: none; border: none; cursor: pointer;
-        font-weight: 500; color: #666; border-bottom: 2px solid transparent;
+        font-weight: 500; color: #666; border-bottom: 3px solid transparent;
         font-size: 0.9rem;
     }
     .bank-tab.active { color: #ea1d2c; border-bottom-color: #ea1d2c; font-weight: bold; }
     .bank-image-container { display: none; margin-top: 15px; text-align: center; }
     .bank-image-container.active { display: block; }
-    .bank-image-container img { max-width: 100%; border-radius: 8px; border: 1px solid #eee; }
+    .bank-image-container img { max-width: 100%; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
     /* === STEPS === */
     .steps { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-    .step { display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.5; font-size: 0.75rem; width: 25%; text-align: center; font-weight: 600; }
-    .s-circle { 
-        width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ccc; 
-        display: flex; align-items: center; justify-content: center; font-weight: bold; 
-        background: #fff; font-size: 1rem; color: #999;
-    }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 5px; opacity: 0.5; font-size: 0.75rem; width: 25%; text-align: center; font-weight: 600; }
+    .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #fff; font-size: 1rem; color: #999; }
     .current-step { opacity: 1; color: #ea1d2c; }
     .current-step .s-circle { background: #ea1d2c; border-color: #ea1d2c; color: white; }
     
     .hidden { display: none !important; }
     
     @media screen and (max-width: 768px) {
-        .containerFinalizar { margin: 20px 10px; padding: 15px; }
-        .payment-area { padding: 0; }
+        .containerFinalizar { margin: 20px 10px; }
     }
   </style>
 </head>
 
 <body>
   <header id="topo">
-    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/20WLmwJX/capa-delivery.webp');">
+    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/20WLmwJX/capa-delivery.webp'');">
       <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center;">
         <img src="../../../SN8gVgwk/logocheff.png" style="width: 100%">
       </div>
@@ -150,7 +139,7 @@
   </header>
 
   <div class="payment-area">
-    <div class="containerFinalizar">
+    <div class="container containerFinalizar">
       <h2 style="width: 100%; text-align: center; margin-bottom: 5px;" id="main-title">Falta pouco!</h2>
       <h3 style="width: 100%; text-align: center; font-size: 1rem; color: #666; font-weight: normal; margin-top: 0;">Pagamento via Pix</h3>
       
@@ -206,7 +195,7 @@
             </div>
 
             <div class="saiba-mais-toggle" id="saiba-mais-toggle">
-                <span>Saiba mais ensinando sobre os alertas dos bancos</span>
+                <span>Saiba mais sobre os alertas dos bancos</span>
                 <i class="fa fa-chevron-down arrow"></i>
             </div>
 
@@ -241,22 +230,10 @@
 
           <h4 style="margin-top: 30px; text-align: center; color:#ea1d2c; margin-bottom: 20px; font-size: 1rem;">Acompanhe em tempo real:</h4>
           <div class="steps">
-            <div class="step current-step">
-                <div class="s-circle">1</div>
-                <span>Aguardando<br>pagamento</span>
-            </div>
-            <div class="step">
-                <div class="s-circle">2</div>
-                <span>Pedido<br>confirmado</span>
-            </div>
-            <div class="step">
-                <div class="s-circle">3</div>
-                <span>Preparando<br>pedido</span>
-            </div>
-            <div class="step">
-                <div class="s-circle">4</div>
-                <span>Pedido<br>entregue</span>
-            </div>
+            <div class="step current-step"><div class="s-circle">1</div><span>Aguardando<br>pagamento</span></div>
+            <div class="step"><div class="s-circle">2</div><span>Pedido<br>confirmado</span></div>
+            <div class="step"><div class="s-circle">3</div><span>Preparando<br>pedido</span></div>
+            <div class="step"><div class="s-circle">4</div><span>Pedido<br>entregue</span></div>
           </div>
 
         </div>
@@ -287,6 +264,8 @@
             }
             
             renderInterface(currentPaymentData);
+            
+            // Renderiza o carrinho com os dados COMPLETOS da API (inclui bumps)
             renderizarCarrinho(currentPaymentData);
             
         } catch (e) { console.error(e); }
@@ -311,56 +290,53 @@
         startPolling(data.transactionId);
     }
 
-    // --- FUNÇÃO DE RENDERIZAÇÃO DO CARRINHO (CORRIGIDA) ---
+    // --- FUNÇÃO DE RENDERIZAÇÃO DO CARRINHO ---
     function renderizarCarrinho(apiData) {
         const container = document.getElementById('cart-body');
-        let items = [];
+        
+        // Usa os itens que voltaram da API (eles contêm os produtos + bumps)
+        let items = apiData.items || [];
 
-        // 1. Tenta pegar os itens completos da API (inclui bumps)
-        if (apiData.items && apiData.items.length > 0) {
-            items = apiData.items;
-        } else {
-            // 2. Fallback para localStorage
-            try { items = JSON.parse(localStorage.getItem('meuCarrinho')) || []; } catch(e){}
+        // Se a API não retornou itens (raro), tenta fallback do localStorage
+        if (items.length === 0) {
+             try { items = JSON.parse(localStorage.getItem('meuCarrinho')) || []; } catch(e){}
         }
 
         if (items.length > 0) {
             container.innerHTML = '';
             items.forEach(item => {
-                // Remove prefixos internos
-                if(item.id && String(item.id).startsWith('bump-temp')) return;
-
-                // Normaliza Preço
+                // Tratamento de Preço (A API devolve em centavos, ex: 3290)
                 let precoVal = 0;
-                if(item.unitPrice) { // Veio da API (em centavos)
+                if(item.unitPrice) {
                     precoVal = item.unitPrice / 100;
-                } else if(item.preco) { // Veio do Storage
+                } else if(item.preco) {
+                    // Caso venha do localStorage como string
                     precoVal = parseFloat(String(item.preco).replace('R$','').replace('.','').replace(',','.'));
                 }
 
-                // Normaliza Nome e Qtd
                 let nome = item.title || item.nome;
                 let qtd = item.quantity || item.quantidade || 1;
-                
-                // Normaliza Imagem (BUMPS)
                 let imgUrl = 'https://placehold.co/50';
+
+                // LÓGICA PARA IDENTIFICAR E MOSTRAR IMAGENS CORRETAS
                 if(nome.includes("Brigadeiro")) {
                     imgUrl = 'https://i.ibb.co/tpBcvjGd/1761874938117blob.webp';
                 } else if(nome.includes("Prestígio")) {
                     imgUrl = 'https://i.ibb.co/twY42GMV/1761874938086blob.webp';
                 } else {
-                    // Tenta recuperar imagem do localStorage se disponível
+                    // Para produtos normais, tenta achar a imagem no localStorage
                     try {
                         const localCart = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
                         const localItem = localCart.find(i => i.nome === nome);
-                        if(localItem && localItem.imagem) imgUrl = localItem.imagem;
+                        if(localItem && localItem.imagem) {
+                            imgUrl = localItem.imagem;
+                            // Corrige caminho relativo
+                            if(imgUrl && !imgUrl.startsWith('http')) {
+                                let cleanPath = imgUrl.replace('./', '').replace('../', '');
+                                imgUrl = `../../../shop/681aaff4852ac923b1bcabfb/checkout/${cleanPath}`;
+                            }
+                        }
                     } catch(e){}
-                    
-                    // Ajuste de caminho relativo
-                    if(imgUrl && !imgUrl.startsWith('http')) {
-                        let cleanPath = imgUrl.replace('./', '').replace('../', '');
-                        imgUrl = `../../../shop/681aaff4852ac923b1bcabfb/checkout/${cleanPath}`;
-                    }
                 }
 
                 container.innerHTML += `
@@ -371,9 +347,9 @@
                             </div>
                             <div class="info">
                                 <span class="product-name">${nome}</span>
-                                <div class="product-meta">
+                                <div style="display:flex; justify-content:space-between; width:100%; margin-top:5px;">
                                     <span style="font-weight:bold; color:#077c22;">R$ ${precoVal.toFixed(2).replace('.',',')}</span>
-                                    <span>Quantidade: ${qtd}</span>
+                                    <span style="font-size:0.85em; color:#555;">Qtd: ${qtd}</span>
                                 </div>
                             </div>
                         </div>
@@ -418,11 +394,11 @@
         el.select();
         document.execCommand('copy');
         const btn = document.getElementById('btn-copy');
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-check"></i> CÓDIGO COPIADO!';
+        const original = btn.innerText;
+        btn.innerText = 'CÓDIGO COPIADO!';
         btn.style.backgroundColor = '#077c22';
         setTimeout(() => {
-            btn.innerHTML = original;
+            btn.innerText = original;
             btn.style.backgroundColor = '#ea1d2c';
         }, 2000);
     });
