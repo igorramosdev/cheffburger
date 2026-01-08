@@ -12,12 +12,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* === CORREÇÃO DO DESIGN E RODAPÉ === */
+    /* === ESTILOS ESPECÍFICOS DA PÁGINA DE PAGAMENTO === */
     
-    /* Força o rodapé a ficar no final do conteúdo, não flutuando */
+    /* Footer Fixo no Final */
     footer {
-        position: relative !important;
-        bottom: auto !important;
+        position: static !important;
         margin-top: 40px !important;
         width: 100%;
         display: block;
@@ -27,106 +26,101 @@
         text-align: center;
     }
 
-    /* Container Principal Centralizado */
     .containerFinalizar {
         max-width: 600px;
-        margin: 40px auto;
+        margin: 20px auto;
         background: white;
-        border: 2px solid #cecece; /* Borda original */
         border-radius: 20px;
-        padding: 25px;
+        padding: 20px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
-    /* Header */
-    h1, h2, h3 { color: #ea1d2c; }
-    header#topo .cover { background-color: #ea1d2c; }
-    
-    /* Área do QR Code */
-    #qrcode { display: flex; justify-content: center; margin: 20px 0; }
-    #qrcode img { 
-        max-width: 250px; 
-        border-radius: 10px; 
-        border: 1px solid #eee; 
-        padding: 5px; 
-    }
-    
-    /* Área de Texto Copia e Cola */
-    textarea { 
-        width: 100%; 
-        height: 80px; 
-        padding: 10px; 
-        border: 2px dashed #ea1d2c; 
-        border-radius: 10px; 
-        background: #fafafa; 
-        resize: none; 
-        font-size: 12px; 
-        color: #555; 
-        outline: none;
-    }
-    
-    /* Botão Copiar */
-    .copy-code { 
-        width: 100%; 
-        background-color: #ea1d2c; 
-        color: white; 
-        border: none; 
-        border-radius: 50px; 
-        padding: 15px; 
-        cursor: pointer; 
-        font-weight: bold; 
-        font-size: 1rem; 
-        margin-top: 15px; 
-        transition: 0.3s;
-    }
-    .copy-code:hover { background-color: #c41421; }
-    
-    /* Timer */
+    /* Timer e QR Code */
     #timer-box { 
-        font-size: 1.2rem; 
+        font-size: 1.3rem; 
         font-weight: bold; 
         color: #ea1d2c; 
         text-align: center; 
         margin: 15px 0; 
     }
     
-    /* Passos (Steps) */
-    .steps { 
-        display: flex; 
-        justify-content: space-between; 
-        margin-top: 30px; 
-        opacity: 0.8; 
-        border-top: 1px solid #eee;
-        padding-top: 20px;
-    }
-    .step { 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 5px; 
-        font-size: 0.8rem; 
-        font-weight: 500;
-    }
-    .s-circle { 
-        width: 30px; 
-        height: 30px; 
-        border-radius: 50%; 
-        border: 2px solid #ccc; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        font-weight: bold; 
-        background: #fff;
+    #qrcode { display: flex; justify-content: center; margin: 20px 0; }
+    #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
+    
+    textarea { 
+        width: 100%; height: 80px; padding: 10px; 
+        border: 2px dashed #ea1d2c; border-radius: 10px; 
+        background: #fafafa; resize: none; font-size: 12px; color: #555; 
     }
     
-    /* Passo Atual */
-    .current-step { color: #ea1d2c; font-weight: bold; opacity: 1; }
-    .current-step .s-circle { border-color: #ea1d2c; color: #white; background: #ea1d2c; color: white; }
-
-    /* Responsividade */
-    @media screen and (max-width: 768px) {
-        .containerFinalizar { margin: 20px 10px; }
+    .copy-code { 
+        width: 100%; background-color: #ea1d2c; color: white; 
+        border: none; border-radius: 50px; padding: 15px; 
+        cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 1rem;
     }
+
+    /* Passo a Passo */
+    .how-to-pay { margin-top: 25px; }
+    .how-to-pay h3 { color: #ea1d2c; font-size: 1rem; margin-bottom: 10px; }
+    .how-to-pay p { margin: 5px 0; font-size: 0.9rem; color: #555; }
+    
+    /* Alerta de Segurança */
+    .pix-security-alert { margin-top: 25px; margin-bottom: 20px; }
+    .alert-box { 
+        display: flex; gap: 12px; padding: 15px; 
+        background-color: #e3f2fd; border-left: 4px solid #2196f3; 
+        border-radius: 8px; margin-bottom: 10px; 
+    }
+    .alert-icon { font-size: 24px; }
+    .alert-content p { margin: 0; color: #1976d2; font-size: 0.9rem; line-height: 1.4; }
+    
+    /* Abas dos Bancos (Accordion) */
+    .saiba-mais-toggle { 
+        display: flex; justify-content: space-between; align-items: center; 
+        padding: 12px 15px; background-color: #f5f5f5; border-radius: 8px; 
+        cursor: pointer; font-weight: bold; color: #333;
+    }
+    .saiba-mais-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .saiba-mais-content.active { max-height: 1000px; }
+    
+    .bank-tabs { display: flex; gap: 10px; margin-top: 15px; border-bottom: 2px solid #ddd; }
+    .bank-tab { 
+        padding: 10px; background: none; border: none; cursor: pointer; 
+        font-weight: 500; color: #666; border-bottom: 3px solid transparent; 
+    }
+    .bank-tab.active { color: #ea1d2c; border-bottom-color: #ea1d2c; }
+    .bank-image-container { display: none; margin-top: 15px; }
+    .bank-image-container.active { display: block; }
+    .bank-image-container img { width: 100%; border-radius: 10px; }
+
+    /* Carrinho Expansível */
+    .cart-top { 
+        margin-top: 25px; display: flex; align-items: center; gap: 10px; 
+        cursor: pointer; background: #f9f9f9; padding: 10px; border-radius: 5px; font-weight: bold;
+    }
+    .triangle { 
+        width: 0; height: 0; 
+        border-top: 6px solid transparent; border-bottom: 6px solid transparent; 
+        border-left: 10px solid #ea1d2c; transition: 0.2s;
+    }
+    .cart-body { margin-top: 10px; display: none; }
+    .cart-body.active { display: block; }
+    .cart-product { 
+        display: flex; justify-content: space-between; padding: 10px; 
+        border: 1px solid #eee; margin-bottom: 5px; border-radius: 5px;
+    }
+
+    /* Steps */
+    .steps { display: flex; justify-content: space-between; margin-top: 30px; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 5px; opacity: 0.5; font-size: 0.8rem; text-align: center; width: 25%; }
+    .s-circle { 
+        width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ea1d2c; 
+        display: flex; align-items: center; justify-content: center; font-weight: bold; color: #ea1d2c;
+    }
+    .current-step { opacity: 1; font-weight: bold; }
+    .current-step .s-circle { background: #ea1d2c; color: white; }
+    
+    .hidden { display: none !important; }
   </style>
 </head>
 
@@ -141,61 +135,93 @@
   </header>
 
   <div class="payment-area">
-    <div class="containerFinalizar">
-      <h2 style="width: 100%; text-align: center; margin-bottom: 5px;" id="main-title">Falta pouco!</h2>
-      <h3 style="width: 100%; text-align: center; font-size: 1rem; color: #666; font-weight: normal;">Pagamento via Pix</h3>
+    <div class="container containerFinalizar">
+      <h2 style="width: 100%; text-align: center" id="main-title">Falta pouco!</h2>
+      <h3 style="width: 100%; text-align: center; font-size: 1.1rem; color: #555;">
+        Escaneie o QR CODE<br>ou copie o código
+      </h3>
+      
+      <a class="voltar" href="../../../shop/681aaff4852ac923b1bcabfb/checkout/index.html" style="background: #ea1d2c; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; text-decoration: none; margin-bottom: 15px; display: inline-block;">
+          <i class="fa fa-chevron-left"></i> VOLTAR
+      </a>
       
       <div id="detalhesProduto">
         <div class="payment">
           
-          <div id="timer-box">
-             Expira em: <span id="time-display">--:--</span>
-          </div>
+          <div id="timer-box">Expira em: <span id="time-display">--:--</span></div>
 
           <div id="active-payment-area">
               <div id="qrcode"></div>
-              
-              <div style="text-align: center; margin-bottom: 5px; font-size: 0.9rem; font-weight: bold; color:#555;">
-                  Copie e cole o código abaixo:
-              </div>
-              
               <textarea id="pix-text" readonly onclick="this.select()"></textarea>
-              
-              <button class="copy-code" id="btn-copy">
-                  <i class="fa fa-copy"></i> COPIAR CÓDIGO PIX
-              </button>
+              <button class="copy-code" id="btn-copy">Copiar código PIX</button>
           </div>
 
-          <div id="fallback-area" style="display: none; text-align: center; margin-top: 20px; padding: 20px; background: #fff5f5; border-radius: 10px;">
-              <i class="fa fa-clock" style="font-size: 40px; color: #ea1d2c; margin-bottom: 10px;"></i>
-              <h3 style="color: #ea1d2c; margin: 0 0 10px 0;">O código expirou</h3>
-              <p style="color:#666;">Gere um novo código para finalizar:</p>
+          <div id="fallback-area" class="hidden" style="text-align: center; background: #fff4f4; padding: 20px; border-radius: 10px; border: 1px dashed #ea1d2c;">
+              <h3 style="color: #ea1d2c;">O código expirou</h3>
               <button class="copy-code" style="background: #077c22;" onclick="renovarPix()">GERAR NOVO PIX</button>
           </div>
 
-          <div class="how-to-pay" style="margin-top: 30px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
-            <h3 style="color: #ea1d2c; font-size: 1rem; margin-bottom: 10px;">Como pagar?</h3>
-            <ul style="padding-left: 20px; color: #555; line-height: 1.6; font-size: 0.9rem; margin: 0;">
-               <li>Abra o app do seu banco.</li>
-               <li>Escolha <b>Pix</b> > <b>Ler QR Code</b> ou <b>Copia e Cola</b>.</li>
-               <li>Escaneie ou cole o código acima.</li>
-               <li>Confirme o pagamento.</li>
-            </ul>
+          <div class="how-to-pay">
+            <h3>Passo a passo:</h3>
+            <p><b>1.</b> Abra o aplicativo do seu banco;</p>
+            <p><b>2.</b> Entre no ambiente Pix;</p>
+            <p><b>3.</b> Escolha "Pagar com QR Code" ou "Colar código PIX";</p>
+            <p><b>4.</b> Se usar QR Code: escaneie a imagem acima;</p>
+            <p><b>5.</b> Se usar código: copie o código acima e cole no app;</p>
+            <p><b>6.</b> Confirme as informações e finalize seu pedido;</p>
+            <p><b>7.</b> Após pagar, aguarde nesta página a confirmação.</p>
+            <p style="margin-top: 10px; font-style: italic; color: #777;">💡 Dica: Se o QR Code não aparecer, use o código Copia e Cola.</p>
           </div>
 
+          <div class="pix-security-alert">
+            <div class="alert-box">
+              <div class="alert-icon">⚠️</div>
+              <div class="alert-content">
+                <p><strong>Atenção:</strong></p>
+                <p>Os bancos reforçaram a segurança do Pix e podem exibir avisos preventivos. Não se preocupe, sua transação está protegida.</p>
+              </div>
+            </div>
+
+            <div class="saiba-mais-toggle" id="saiba-mais-toggle">
+              <span>Saiba Mais sobre alertas</span>
+              <span class="arrow">▼</span>
+            </div>
+
+            <div class="saiba-mais-content" id="saiba-mais-content">
+              <div class="bank-tabs">
+                <button class="bank-tab active" data-bank="nubank">Nubank</button>
+                <button class="bank-tab" data-bank="inter">Inter</button>
+                <button class="bank-tab" data-bank="bradesco">Bradesco</button>
+              </div>
+
+              <div class="bank-content">
+                <div class="bank-image-container active" data-bank-content="nubank">
+                  <img src="../../../images/nubank.jpeg" alt="Alerta Nubank" onerror="this.src='https://placehold.co/400x200?text=Alerta+Nubank'">
+                </div>
+                <div class="bank-image-container" data-bank-content="inter">
+                  <img src="../../../images/inter.jpeg" alt="Alerta Inter" onerror="this.src='https://placehold.co/400x200?text=Alerta+Inter'">
+                </div>
+                <div class="bank-image-container" data-bank-content="bradesco">
+                  <img src="../../../images/bradesco.jpeg" alt="Alerta Bradesco" onerror="this.src='https://placehold.co/400x200?text=Alerta+Bradesco'">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cart-top" id="cart-top">
+            <div class="triangle"></div>
+            <span>Seu pedido</span>
+          </div>
+          
+          <div class="cart-body" id="cart-body">
+             </div>
+
+          <h4 style="margin-top: 30px; text-align: center; color:#ea1d2c;">Acompanhe em tempo real:</h4>
           <div class="steps">
-            <div class="step current-step">
-                <div class="s-circle">1</div> 
-                <span>Pagar</span>
-            </div>
-            <div class="step">
-                <div class="s-circle">2</div> 
-                <span>Aprovado</span>
-            </div>
-            <div class="step">
-                <div class="s-circle">3</div> 
-                <span>Entrega</span>
-            </div>
+            <div class="step current-step"><div class="s-circle">1</div><span>Aguardando</span></div>
+            <div class="step"><div class="s-circle">2</div><span>Confirmado</span></div>
+            <div class="step"><div class="s-circle">3</div><span>Preparando</span></div>
+            <div class="step"><div class="s-circle">4</div><span>Entregue</span></div>
           </div>
 
         </div>
@@ -205,42 +231,41 @@
 
   <footer>
     <b>Cheff Burguer</b><br>
-    <span style="font-size: 0.9rem;">CNPJ: 37.XXX.253/0001-51</span>
+    <small>CNPJ: 37.XXX.253/0001-51</small>
   </footer>
 
   <script>
     let countdownInterval, checkInterval, currentPaymentData;
 
     document.addEventListener("DOMContentLoaded", () => {
-        // Recupera dados da URL
+        // 1. Carrega dados da URL
         const urlParams = new URLSearchParams(window.location.search);
         const dataParam = urlParams.get('data');
-        if (!dataParam) return Swal.fire('Erro', 'Dados do pagamento não encontrados.', 'error');
+        if (!dataParam) return Swal.fire('Erro', 'Dados não encontrados.', 'error');
 
         try {
             currentPaymentData = JSON.parse(decodeURIComponent(dataParam));
             
-            // Personaliza com o nome do cliente se existir
+            // Personaliza Nome
             if(currentPaymentData.customer?.nome) {
                 const primeiroNome = currentPaymentData.customer.nome.split(" ")[0];
                 document.getElementById('main-title').textContent = `Falta pouco, ${primeiroNome}!`;
             }
             
+            // Renderiza Itens no "Seu Pedido"
+            renderizarCarrinho(currentPaymentData);
+
+            // Inicia Interface Pix
             renderInterface(currentPaymentData);
-        } catch (e) { 
-            console.error(e);
-            Swal.fire('Erro', 'Falha ao carregar dados.', 'error');
-        }
+            
+        } catch (e) { console.error(e); }
     });
 
     function renderInterface(data) {
+        document.getElementById('pix-text').value = data.pix_copy_paste;
         const qrEl = document.getElementById('qrcode');
-        const textEl = document.getElementById('pix-text');
-        
-        textEl.value = data.pix_copy_paste;
         qrEl.innerHTML = '';
         
-        // Gera Imagem QR Code
         if (data.qr_code_base64 && data.qr_code_base64.length > 20) {
             const img = document.createElement('img');
             const prefix = data.qr_code_base64.startsWith('data:') ? '' : 'data:image/png;base64,';
@@ -248,75 +273,101 @@
             img.style.width = '100%';
             qrEl.appendChild(img);
         } else {
-            new QRCode(qrEl, { 
-                text: data.pix_copy_paste, 
-                width: 250, 
-                height: 250 
-            });
+            new QRCode(qrEl, { text: data.pix_copy_paste, width: 250, height: 250 });
         }
 
         startTimer(data.expiration_seconds || 1800);
         startPolling(data.transactionId);
     }
 
-    // Botão Copiar
+    function renderizarCarrinho(data) {
+        const container = document.getElementById('cart-body');
+        if(data.items && data.items.length > 0) {
+            container.innerHTML = '';
+            data.items.forEach(item => {
+                let preco = (item.unitPrice / 100).toFixed(2).replace('.', ',');
+                container.innerHTML += `
+                    <div class="cart-product">
+                        <div style="flex-grow:1;">
+                            <b>${item.title}</b><br>
+                            <small>Quantidade: ${item.quantity}</small>
+                        </div>
+                        <div style="font-weight:bold; color:#077c22;">R$ ${preco}</div>
+                    </div>
+                `;
+            });
+        } else {
+            container.innerHTML = '<p style="padding:10px; text-align:center;">Detalhes indisponíveis.</p>';
+        }
+    }
+
+    // Funcionalidades de UI (Abas e Accordion)
+    document.getElementById('saiba-mais-toggle').addEventListener('click', function() {
+        document.getElementById('saiba-mais-content').classList.toggle('active');
+        this.querySelector('.arrow').style.transform = document.getElementById('saiba-mais-content').classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+
+    document.getElementById('cart-top').addEventListener('click', function() {
+        document.getElementById('cart-body').classList.toggle('active');
+        this.querySelector('.triangle').style.transform = document.getElementById('cart-body').classList.contains('active') ? 'rotate(90deg)' : 'rotate(0deg)';
+    });
+
+    document.querySelectorAll('.bank-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.bank-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const bank = this.getAttribute('data-bank');
+            document.querySelectorAll('.bank-image-container').forEach(c => c.classList.remove('active'));
+            document.querySelector(`[data-bank-content="${bank}"]`).classList.add('active');
+        });
+    });
+
+    // Copiar Código
     document.getElementById('btn-copy').addEventListener('click', () => {
         const el = document.getElementById('pix-text');
         el.select();
         document.execCommand('copy');
-        
         const btn = document.getElementById('btn-copy');
-        const originalContent = btn.innerHTML;
-        
-        btn.innerHTML = '<i class="fa fa-check"></i> COPIADO!';
+        const original = btn.innerText;
+        btn.innerText = 'CÓDIGO COPIADO!';
         btn.style.backgroundColor = '#077c22';
-        
         setTimeout(() => {
-            btn.innerHTML = originalContent;
+            btn.innerText = original;
             btn.style.backgroundColor = '#ea1d2c';
         }, 2000);
     });
 
-    // Timer Regressivo
+    // Timer
     function startTimer(duration) {
         let timer = duration;
         clearInterval(countdownInterval);
-        
         countdownInterval = setInterval(() => {
             let min = Math.floor(timer / 60);
             let sec = timer % 60;
-            
-            // Formatação 00:00
-            min = min < 10 ? "0" + min : min;
-            sec = sec < 10 ? "0" + sec : sec;
-            
-            document.getElementById('time-display').textContent = `${min}:${sec}`;
-
+            document.getElementById('time-display').textContent = `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
             if (--timer < 0) {
                 clearInterval(countdownInterval);
-                clearInterval(checkInterval);
                 document.getElementById('active-payment-area').style.display = 'none';
+                document.getElementById('fallback-area').classList.remove('hidden');
                 document.getElementById('fallback-area').style.display = 'block';
                 document.getElementById('time-display').textContent = "EXPIRADO";
             }
         }, 1000);
     }
 
-    // Verificação de Status (Polling)
+    // Polling de Status
     function startPolling(id) {
         if(!id) return;
         clearInterval(checkInterval);
-        
         checkInterval = setInterval(async () => {
             try {
                 const res = await fetch(`/api/check-status?id=${id}`);
                 const status = await res.json();
-                
                 if(status.paid) {
                     clearInterval(checkInterval);
                     clearInterval(countdownInterval);
-                    
-                    // Atualiza Visualmente os Steps
+                    // Atualiza Steps Visualmente
                     const steps = document.querySelectorAll('.step');
                     steps[0].classList.remove('current-step');
                     steps[1].classList.add('current-step');
@@ -324,47 +375,20 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Pagamento Confirmado!',
-                        text: 'Seu pedido foi recebido e está sendo preparado.',
+                        text: 'Seu pedido está sendo preparado.',
                         showConfirmButton: true,
-                        confirmButtonText: 'Acompanhar Entrega',
-                        confirmButtonColor: '#077c22'
+                        confirmButtonColor: '#077c22',
+                        confirmButtonText: 'Acompanhar Entrega'
                     }).then(() => {
                         window.location.href = '/entrega'; 
                     });
                 }
-            } catch(e) {
-                console.log("Aguardando pagamento...");
-            }
-        }, 5000); // Verifica a cada 5 segundos
+            } catch(e) {}
+        }, 5000);
     }
 
     async function renovarPix() {
-       // Recarrega a página para gerar um novo Pix usando a lógica do checkout
-       // (Ou poderia chamar a API novamente aqui se preferir não recarregar)
-       Swal.fire({
-           title: 'Gerando novo código...',
-           didOpen: () => { Swal.showLoading() }
-       });
-       
-       // Reenvia os dados atuais para gerar novo ID
-       try {
-           const res = await fetch('/api/generate-pix', {
-               method: 'POST',
-               headers: {'Content-Type': 'application/json'},
-               body: JSON.stringify({
-                   customer: currentPaymentData.customer,
-                   total: currentPaymentData.amount,
-                   items: [] // Itens já foram processados, manda vazio ou original
-               })
-           });
-           const newData = await res.json();
-           if(newData.success) {
-                const dataStr = encodeURIComponent(JSON.stringify(newData));
-                window.location.search = `?data=${dataStr}`;
-           }
-       } catch(e) {
-           location.reload(); // Fallback
-       }
+       location.reload(); 
     }
   </script>
 </body>
