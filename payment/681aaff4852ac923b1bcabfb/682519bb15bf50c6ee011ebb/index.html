@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pagamento Pix</title>
+  <title>Finalizar Pagamento</title>
   
   <link type="text/css" href="../../../css/delivry-25.css" rel="stylesheet">
   
@@ -12,9 +12,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* CORREÇÃO DO FOOTER FLUTUANTE */
+    /* === CORREÇÃO DO DESIGN E RODAPÉ === */
+    
+    /* Força o rodapé a ficar no final do conteúdo, não flutuando */
     footer {
-        position: relative !important; /* Remove fixação nesta página */
+        position: relative !important;
         bottom: auto !important;
         margin-top: 40px !important;
         width: 100%;
@@ -25,32 +27,106 @@
         text-align: center;
     }
 
+    /* Container Principal Centralizado */
     .containerFinalizar {
         max-width: 600px;
         margin: 40px auto;
         background: white;
+        border: 2px solid #cecece; /* Borda original */
         border-radius: 20px;
         padding: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
-    h1, h2 { color: #ea1d2c; }
+    /* Header */
+    h1, h2, h3 { color: #ea1d2c; }
     header#topo .cover { background-color: #ea1d2c; }
     
+    /* Área do QR Code */
     #qrcode { display: flex; justify-content: center; margin: 20px 0; }
-    #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
+    #qrcode img { 
+        max-width: 250px; 
+        border-radius: 10px; 
+        border: 1px solid #eee; 
+        padding: 5px; 
+    }
     
-    textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; font-size: 12px; color: #555; }
+    /* Área de Texto Copia e Cola */
+    textarea { 
+        width: 100%; 
+        height: 80px; 
+        padding: 10px; 
+        border: 2px dashed #ea1d2c; 
+        border-radius: 10px; 
+        background: #fafafa; 
+        resize: none; 
+        font-size: 12px; 
+        color: #555; 
+        outline: none;
+    }
     
-    .copy-code { width: 100%; background-color: #ea1d2c; color: white; border: none; border-radius: 50px; padding: 15px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    /* Botão Copiar */
+    .copy-code { 
+        width: 100%; 
+        background-color: #ea1d2c; 
+        color: white; 
+        border: none; 
+        border-radius: 50px; 
+        padding: 15px; 
+        cursor: pointer; 
+        font-weight: bold; 
+        font-size: 1rem; 
+        margin-top: 15px; 
+        transition: 0.3s;
+    }
+    .copy-code:hover { background-color: #c41421; }
     
-    #timer-box { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
+    /* Timer */
+    #timer-box { 
+        font-size: 1.2rem; 
+        font-weight: bold; 
+        color: #ea1d2c; 
+        text-align: center; 
+        margin: 15px 0; 
+    }
     
-    .steps { display: flex; justify-content: space-between; margin-top: 30px; opacity: 0.8; }
-    .step { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
-    .s-circle { width: 25px; height: 25px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    /* Passos (Steps) */
+    .steps { 
+        display: flex; 
+        justify-content: space-between; 
+        margin-top: 30px; 
+        opacity: 0.8; 
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+    }
+    .step { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 5px; 
+        font-size: 0.8rem; 
+        font-weight: 500;
+    }
+    .s-circle { 
+        width: 30px; 
+        height: 30px; 
+        border-radius: 50%; 
+        border: 2px solid #ccc; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-weight: bold; 
+        background: #fff;
+    }
+    
+    /* Passo Atual */
     .current-step { color: #ea1d2c; font-weight: bold; opacity: 1; }
-    .current-step .s-circle { border-color: #ea1d2c; color: #ea1d2c; }
+    .current-step .s-circle { border-color: #ea1d2c; color: #white; background: #ea1d2c; color: white; }
+
+    /* Responsividade */
+    @media screen and (max-width: 768px) {
+        .containerFinalizar { margin: 20px 10px; }
+    }
   </style>
 </head>
 
@@ -66,28 +142,40 @@
 
   <div class="payment-area">
     <div class="containerFinalizar">
-      <h2 style="width: 100%; text-align: center" id="main-title">Falta pouco!</h2>
-      <h3 style="width: 100%; text-align: center; font-size: 1.1rem; color: #555;">Pagamento via Pix</h3>
+      <h2 style="width: 100%; text-align: center; margin-bottom: 5px;" id="main-title">Falta pouco!</h2>
+      <h3 style="width: 100%; text-align: center; font-size: 1rem; color: #666; font-weight: normal;">Pagamento via Pix</h3>
       
       <div id="detalhesProduto">
         <div class="payment">
           
-          <div id="timer-box">Expira em: <span id="time-display">--:--</span></div>
+          <div id="timer-box">
+             Expira em: <span id="time-display">--:--</span>
+          </div>
 
           <div id="active-payment-area">
               <div id="qrcode"></div>
+              
+              <div style="text-align: center; margin-bottom: 5px; font-size: 0.9rem; font-weight: bold; color:#555;">
+                  Copie e cole o código abaixo:
+              </div>
+              
               <textarea id="pix-text" readonly onclick="this.select()"></textarea>
-              <button class="copy-code" id="btn-copy"><i class="fa fa-copy"></i> COPIAR CÓDIGO PIX</button>
+              
+              <button class="copy-code" id="btn-copy">
+                  <i class="fa fa-copy"></i> COPIAR CÓDIGO PIX
+              </button>
           </div>
 
-          <div id="fallback-area" style="display: none; text-align: center; margin-top: 20px;">
-              <h3 style="color: #ea1d2c;">O código expirou</h3>
+          <div id="fallback-area" style="display: none; text-align: center; margin-top: 20px; padding: 20px; background: #fff5f5; border-radius: 10px;">
+              <i class="fa fa-clock" style="font-size: 40px; color: #ea1d2c; margin-bottom: 10px;"></i>
+              <h3 style="color: #ea1d2c; margin: 0 0 10px 0;">O código expirou</h3>
+              <p style="color:#666;">Gere um novo código para finalizar:</p>
               <button class="copy-code" style="background: #077c22;" onclick="renovarPix()">GERAR NOVO PIX</button>
           </div>
 
-          <div class="how-to-pay" style="margin-top: 30px;">
-            <h3 style="color: #ea1d2c; font-size: 1rem;">Passo a passo:</h3>
-            <ul style="padding-left: 20px; color: #555; line-height: 1.6; font-size: 0.9rem;">
+          <div class="how-to-pay" style="margin-top: 30px; background: #f9f9f9; padding: 15px; border-radius: 10px;">
+            <h3 style="color: #ea1d2c; font-size: 1rem; margin-bottom: 10px;">Como pagar?</h3>
+            <ul style="padding-left: 20px; color: #555; line-height: 1.6; font-size: 0.9rem; margin: 0;">
                <li>Abra o app do seu banco.</li>
                <li>Escolha <b>Pix</b> > <b>Ler QR Code</b> ou <b>Copia e Cola</b>.</li>
                <li>Escaneie ou cole o código acima.</li>
@@ -96,9 +184,18 @@
           </div>
 
           <div class="steps">
-            <div class="step current-step"><div class="s-circle">1</div> Pagar</div>
-            <div class="step"><div class="s-circle">2</div> Aprovado</div>
-            <div class="step"><div class="s-circle">3</div> Entrega</div>
+            <div class="step current-step">
+                <div class="s-circle">1</div> 
+                <span>Pagar</span>
+            </div>
+            <div class="step">
+                <div class="s-circle">2</div> 
+                <span>Aprovado</span>
+            </div>
+            <div class="step">
+                <div class="s-circle">3</div> 
+                <span>Entrega</span>
+            </div>
           </div>
 
         </div>
@@ -115,17 +212,25 @@
     let countdownInterval, checkInterval, currentPaymentData;
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Recupera dados da URL
         const urlParams = new URLSearchParams(window.location.search);
         const dataParam = urlParams.get('data');
-        if (!dataParam) return Swal.fire('Erro', 'Dados não encontrados.', 'error');
+        if (!dataParam) return Swal.fire('Erro', 'Dados do pagamento não encontrados.', 'error');
 
         try {
             currentPaymentData = JSON.parse(decodeURIComponent(dataParam));
+            
+            // Personaliza com o nome do cliente se existir
             if(currentPaymentData.customer?.nome) {
-                document.getElementById('main-title').textContent = `Falta pouco, ${currentPaymentData.customer.nome.split(" ")[0]}!`;
+                const primeiroNome = currentPaymentData.customer.nome.split(" ")[0];
+                document.getElementById('main-title').textContent = `Falta pouco, ${primeiroNome}!`;
             }
+            
             renderInterface(currentPaymentData);
-        } catch (e) { console.error(e); }
+        } catch (e) { 
+            console.error(e);
+            Swal.fire('Erro', 'Falha ao carregar dados.', 'error');
+        }
     });
 
     function renderInterface(data) {
@@ -135,43 +240,61 @@
         textEl.value = data.pix_copy_paste;
         qrEl.innerHTML = '';
         
-        if (data.qr_code_base64) {
+        // Gera Imagem QR Code
+        if (data.qr_code_base64 && data.qr_code_base64.length > 20) {
             const img = document.createElement('img');
             const prefix = data.qr_code_base64.startsWith('data:') ? '' : 'data:image/png;base64,';
             img.src = prefix + data.qr_code_base64;
             img.style.width = '100%';
             qrEl.appendChild(img);
         } else {
-            new QRCode(qrEl, { text: data.pix_copy_paste, width: 250, height: 250 });
+            new QRCode(qrEl, { 
+                text: data.pix_copy_paste, 
+                width: 250, 
+                height: 250 
+            });
         }
 
         startTimer(data.expiration_seconds || 1800);
         startPolling(data.transactionId);
     }
 
+    // Botão Copiar
     document.getElementById('btn-copy').addEventListener('click', () => {
         const el = document.getElementById('pix-text');
         el.select();
         document.execCommand('copy');
+        
         const btn = document.getElementById('btn-copy');
-        const original = btn.textContent;
-        btn.textContent = 'COPIADO!';
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fa fa-check"></i> COPIADO!';
         btn.style.backgroundColor = '#077c22';
+        
         setTimeout(() => {
-            btn.textContent = original;
+            btn.innerHTML = originalContent;
             btn.style.backgroundColor = '#ea1d2c';
         }, 2000);
     });
 
+    // Timer Regressivo
     function startTimer(duration) {
         let timer = duration;
         clearInterval(countdownInterval);
+        
         countdownInterval = setInterval(() => {
             let min = Math.floor(timer / 60);
             let sec = timer % 60;
-            document.getElementById('time-display').textContent = `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
+            
+            // Formatação 00:00
+            min = min < 10 ? "0" + min : min;
+            sec = sec < 10 ? "0" + sec : sec;
+            
+            document.getElementById('time-display').textContent = `${min}:${sec}`;
+
             if (--timer < 0) {
                 clearInterval(countdownInterval);
+                clearInterval(checkInterval);
                 document.getElementById('active-payment-area').style.display = 'none';
                 document.getElementById('fallback-area').style.display = 'block';
                 document.getElementById('time-display').textContent = "EXPIRADO";
@@ -179,31 +302,69 @@
         }, 1000);
     }
 
+    // Verificação de Status (Polling)
     function startPolling(id) {
         if(!id) return;
         clearInterval(checkInterval);
+        
         checkInterval = setInterval(async () => {
             try {
                 const res = await fetch(`/api/check-status?id=${id}`);
                 const status = await res.json();
+                
                 if(status.paid) {
                     clearInterval(checkInterval);
+                    clearInterval(countdownInterval);
+                    
+                    // Atualiza Visualmente os Steps
+                    const steps = document.querySelectorAll('.step');
+                    steps[0].classList.remove('current-step');
+                    steps[1].classList.add('current-step');
+                    
                     Swal.fire({
                         icon: 'success',
-                        title: 'Pagamento Aprovado!',
-                        text: 'Redirecionando...',
-                        showConfirmButton: false,
-                        timer: 2000
+                        title: 'Pagamento Confirmado!',
+                        text: 'Seu pedido foi recebido e está sendo preparado.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Acompanhar Entrega',
+                        confirmButtonColor: '#077c22'
                     }).then(() => {
                         window.location.href = '/entrega'; 
                     });
                 }
-            } catch(e) {}
-        }, 5000);
+            } catch(e) {
+                console.log("Aguardando pagamento...");
+            }
+        }, 5000); // Verifica a cada 5 segundos
     }
 
     async function renovarPix() {
-       location.reload(); 
+       // Recarrega a página para gerar um novo Pix usando a lógica do checkout
+       // (Ou poderia chamar a API novamente aqui se preferir não recarregar)
+       Swal.fire({
+           title: 'Gerando novo código...',
+           didOpen: () => { Swal.showLoading() }
+       });
+       
+       // Reenvia os dados atuais para gerar novo ID
+       try {
+           const res = await fetch('/api/generate-pix', {
+               method: 'POST',
+               headers: {'Content-Type': 'application/json'},
+               body: JSON.stringify({
+                   customer: currentPaymentData.customer,
+                   total: currentPaymentData.amount,
+                   items: [] // Itens já foram processados, manda vazio ou original
+               })
+           });
+           const newData = await res.json();
+           if(newData.success) {
+                const dataStr = encodeURIComponent(JSON.stringify(newData));
+                window.location.search = `?data=${dataStr}`;
+           }
+       } catch(e) {
+           location.reload(); // Fallback
+       }
     }
   </script>
 </body>
