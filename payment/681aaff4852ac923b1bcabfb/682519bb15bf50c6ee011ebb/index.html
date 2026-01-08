@@ -58,11 +58,10 @@
 
     /* === CARRINHO E PRODUTOS === */
     .cart-top { 
-        margin-top: 30px; display: flex; align-items: center; gap: 10px; 
+        margin-top: 30px; display: flex; align-items: center; justify-content: space-between;
         cursor: pointer; background: #f9f9f9; padding: 12px; border-radius: 8px; 
-        font-weight: bold; border: 1px solid #eee; justify-content: space-between;
+        font-weight: bold; border: 1px solid #eee; color: #333;
     }
-    .cart-top span { color: #333; }
     .triangle { 
         width: 0; height: 0; 
         border-top: 6px solid transparent; border-bottom: 6px solid transparent; 
@@ -72,16 +71,17 @@
     .cart-body.active { display: block; }
 
     .cart-product { 
-        display: flex; justify-content: space-between; align-items: center; 
+        display: flex; justify-content: space-between; align-items: flex-start; 
         margin-bottom: 10px; padding: 10px; 
-        border: 1px solid #EA1D2C; border-radius: 5px; background: #fff;
+        border: 1px solid #eee; border-radius: 5px; background: #fff;
     }
-    .c-p-01 { display: flex; align-items: center; gap: 15px; }
-    .c-p-01 .img { width: 50px; height: 50px; overflow: hidden; border-radius: 5px; }
+    .c-p-01 { display: flex; align-items: flex-start; gap: 15px; width: 100%; }
+    .c-p-01 .img { width: 50px; height: 50px; overflow: hidden; border-radius: 5px; flex-shrink: 0; }
     .c-p-01 .img img { width: 100%; height: 100%; object-fit: cover; }
-    .c-p-01 .info { display: flex; flex-direction: column; }
-    .product-name { font-weight: bold; font-size: 0.9rem; line-height: 1.2; }
-
+    .c-p-01 .info { display: flex; flex-direction: column; width: 100%; }
+    
+    .product-name { font-weight: bold; font-size: 0.9rem; line-height: 1.2; color: #333; margin-bottom: 5px; }
+    
     /* === ALERTAS E ABAS === */
     .pix-security-alert { margin-top: 25px; }
     .alert-box { 
@@ -89,14 +89,15 @@
         background-color: #e3f2fd; border-left: 4px solid #2196f3; 
         border-radius: 8px; margin-bottom: 10px; 
     }
-    .alert-icon { font-size: 24px; }
+    .alert-icon { font-size: 24px; color: #2196f3; }
     .alert-content p { margin: 0; color: #1976d2; font-size: 0.9rem; line-height: 1.4; }
+    .alert-content strong { display: block; margin-bottom: 5px; color: #1565c0; }
 
     .saiba-mais-toggle {
         display: flex; justify-content: space-between; align-items: center;
         padding: 10px 15px; background: #f5f5f5; border-radius: 8px;
         cursor: pointer; font-size: 0.9rem; font-weight: 600; color: #555;
-        border: 1px solid #eee;
+        border: 1px solid #eee; margin-top: 10px;
     }
     .saiba-mais-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
     .saiba-mais-content.active { max-height: 1000px; }
@@ -115,7 +116,7 @@
     /* === STEPS === */
     .steps { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
     .step { display: flex; flex-direction: column; align-items: center; gap: 5px; opacity: 0.5; font-size: 0.75rem; width: 25%; text-align: center; font-weight: 600; }
-    .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #fff; font-size: 1rem;}
+    .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #fff; font-size: 1rem; color: #999; }
     .current-step { opacity: 1; color: #ea1d2c; }
     .current-step .s-circle { background: #ea1d2c; border-color: #ea1d2c; color: white; }
     
@@ -265,6 +266,8 @@
             }
             
             renderInterface(currentPaymentData);
+            
+            // Renderiza o carrinho com os dados COMPLETOS da API (inclui bumps)
             renderizarCarrinho(currentPaymentData);
             
         } catch (e) { console.error(e); }
@@ -291,7 +294,6 @@
         let endTime = localStorage.getItem(storageKey);
 
         if (!endTime) {
-            // Se não existe, define para agora + 30 min
             endTime = Date.now() + (expirationSeconds * 1000);
             localStorage.setItem(storageKey, endTime);
         }
@@ -300,45 +302,40 @@
         startPolling(data.transactionId);
     }
 
-    // --- RENDERIZAÇÃO DO CARRINHO (CORRIGIDA E LIMPA) ---
+    // --- RENDERIZAÇÃO CORRIGIDA DO CARRINHO (SEM DUPLICIDADE) ---
     function renderizarCarrinho(apiData) {
         const container = document.getElementById('cart-body');
+        
+        // Prioriza a lista de itens que veio da API (pois ela contém os bumps e os valores finais)
         let items = [];
-
-        // 1. Tenta pegar os itens completos da API (inclui bumps)
         if (apiData.items && apiData.items.length > 0) {
             items = apiData.items;
         } else {
-            // 2. Fallback para localStorage
             try { items = JSON.parse(localStorage.getItem('meuCarrinho')) || []; } catch(e){}
         }
 
         if (items.length > 0) {
             container.innerHTML = '';
             items.forEach(item => {
-                // Remove prefixos internos
-                if(item.id && String(item.id).startsWith('bump-temp')) return;
-
-                // Normaliza Preço
+                // Trata o preço (se vier da API é centavos, se vier do storage é string)
                 let precoVal = 0;
-                if(item.unitPrice) { // Veio da API (em centavos)
-                    precoVal = item.unitPrice / 100;
-                } else if(item.preco) { // Veio do Storage
+                if(item.unitPrice) {
+                    precoVal = item.unitPrice / 100; // API (3290 -> 32.90)
+                } else if(item.preco) {
                     precoVal = parseFloat(String(item.preco).replace('R$','').replace('.','').replace(',','.'));
                 }
 
-                // Normaliza Nome e Qtd
                 let nome = item.title || item.nome;
                 let qtd = item.quantity || item.quantidade || 1;
                 
-                // Normaliza Imagem (BUMPS)
+                // Imagens dos Bumps
                 let imgUrl = 'https://placehold.co/50';
                 if(nome.includes("Brigadeiro")) {
                     imgUrl = 'https://i.ibb.co/tpBcvjGd/1761874938117blob.webp';
                 } else if(nome.includes("Prestígio")) {
                     imgUrl = 'https://i.ibb.co/twY42GMV/1761874938086blob.webp';
                 } else {
-                    // Tenta recuperar imagem do localStorage se disponível
+                    // Tenta recuperar imagem do localStorage para itens normais
                     try {
                         const localCart = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
                         const localItem = localCart.find(i => i.nome === nome);
@@ -353,6 +350,7 @@
                     } catch(e){}
                 }
 
+                // Renderiza SEM duplicidade de preço
                 container.innerHTML += `
                     <div class="cart-product">
                         <div class="c-p-01">
@@ -361,11 +359,13 @@
                             </div>
                             <div class="info">
                                 <span class="product-name">${nome}</span>
-                                <div style="display:flex; justify-content:space-between; width:100%; margin-top:5px;">
-                                    <span style="font-size:0.85em; color:#555;">Quantidade: ${qtd}</span>
-                                    <span style="font-weight:bold; color:#077c22;">R$ ${(precoVal * qtd).toFixed(2).replace('.',',')}</span>
+                                <div style="display:flex; justify-content:space-between; width:100%; margin-top:5px; color:#555; font-size:0.85rem;">
+                                    <span>Quantidade: ${qtd}</span>
                                 </div>
                             </div>
+                        </div>
+                        <div style="font-weight: bold; color: #077c22; font-size: 0.95rem; align-self: center;">
+                            R$ ${(precoVal * qtd).toFixed(2).replace('.',',')}
                         </div>
                     </div>
                 `;
@@ -441,7 +441,7 @@
                 `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
         }
 
-        update(); // Chama uma vez para não ter delay
+        update(); 
         countdownInterval = setInterval(update, 1000);
     }
 
@@ -476,7 +476,6 @@
     }
 
     async function renovarPix() { 
-        // Remove a chave do localStorage ao renovar
         if(currentPaymentData && currentPaymentData.transactionId) {
             localStorage.removeItem(`pix_expire_${currentPaymentData.transactionId}`);
         }
