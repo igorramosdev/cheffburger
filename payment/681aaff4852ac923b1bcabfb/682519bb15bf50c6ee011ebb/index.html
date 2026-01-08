@@ -5,122 +5,94 @@
   <title>Finalizar Pagamento</title>
   
   <link type="text/css" href="/css/delivry-25.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="../icon?family=Material+Icons">
 
   <style>
-    /* Estilos do Design Original */
-    h1, h2, h3 { color: #ea1d2c; }
+    /* Estilos Originais */
+    h1, h2 { color: #ea1d2c; }
     header#topo .cover { background-color: #ea1d2c; }
-    .btn, a.voltar { background: #ea1d2c; color:white; }
-    .payment-area { max-width: 600px; margin: 20px auto; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .btn, a.voltar { background: #ea1d2c; }
     
-    /* Timer e Fallback */
-    #timer-box { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
-    #fallback-area { display: none; background: #fff4f4; padding: 20px; border-radius: 10px; border: 1px dashed #ea1d2c; text-align: center; margin-top: 20px; }
+    /* Timer e Fallback Integrados ao Design */
+    #timer-box { text-align: center; color: #ea1d2c; font-weight: bold; font-size: 1.2rem; margin: 10px 0; }
+    #fallback-area { display: none; text-align: center; background: #fff4f4; padding: 20px; border: 1px dashed #ea1d2c; border-radius: 10px; margin-top: 20px; }
     
-    .copy-code { width: 100%; background-color: #ea1d2c; color: white; border: none; border-radius: 50px; padding: 15px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; }
-    .copy-code:hover { background-color: #c41421; }
-    
-    textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; color: #555; font-size: 12px; }
+    /* Ajustes QR Code */
     #qrcode { display: flex; justify-content: center; margin: 20px 0; }
-    #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
-
-    /* Steps */
-    .steps { display: flex; justify-content: space-between; margin-top: 30px; opacity: 0.8; }
-    .step { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
-    .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .current-step { color: #ea1d2c; font-weight: bold; opacity: 1; }
-    .current-step .s-circle { border-color: #ea1d2c; color: #ea1d2c; }
+    #qrcode img { border: 1px solid #eee; padding: 5px; border-radius: 10px; }
+    
+    /* Botão Copiar */
+    .copy-code { background: #ea1d2c; color: white; border: none; padding: 15px; width: 100%; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .copy-code:hover { background: #c41421; }
+    
+    textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; font-size: 12px; }
   </style>
 </head>
 
 <body>
+  <div id="opacidade" class="fechar"></div>
   <header id="topo">
-    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('https://i.ibb.co/mVDwQN39/banner-237f7496.webp'); height: 150px;">
-      <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center; position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-        <img src="/SN8gVgwk/logocheff.png" style="width: 100%;">
+    <div class="cover main" style="background-position: center; background-size: cover; background-image: url('../../../mVDwQN39/banner-237f7496.webp');">
+      <div class="logo" style="background-color: white !important; display: flex; align-items: center; justify-content: center;">
+        <img src="../../../SN8gVgwk/logocheff.png" style="width: 100%">
       </div>
+      <div class="borda"></div>
     </div>
   </header>
 
-  <div style="height: 40px;"></div> <div class="payment-area">
-    <h2 style="text-align: center">Falta pouco!</h2>
-    <h3 style="text-align: center; font-size: 1.1rem; color: #555;">Pagamento via Pix</h3>
-    
-    <div id="detalhesProduto">
-      <div class="payment">
-        
-        <div id="timer-box">
-           Expira em: <span id="time-display">--:--</span>
-        </div>
+  <div class="payment-area">
+    <div class="container containerFinalizar">
+      <h2 style="width: 100%; text-align: center">Falta pouco!</h2>
+      <h3 style="width: 100%; text-align: center">Pagamento via Pix</h3>
+      
+      <div id="detalhesProduto">
+        <div class="payment">
+          
+          <div id="timer-box">Expira em: <span id="time-display">--:--</span></div>
 
-        <div id="active-payment-area">
-            <div id="qrcode"></div>
-            <textarea id="pix-text" readonly onclick="this.select()"></textarea>
-            <button class="copy-code" id="btn-copy"><i class="fa fa-copy"></i> COPIAR CÓDIGO PIX</button>
-        </div>
-
-        <div id="fallback-area">
-            <i class="fa fa-exclamation-circle" style="font-size: 40px; color: #ea1d2c; margin-bottom: 10px;"></i>
-            <h3 style="margin: 5px 0;">O código expirou</h3>
-            <p style="color: #666; margin-bottom: 15px;">Não se preocupe! Gere um novo código para finalizar.</p>
-            <button onclick="renovarPix()" class="copy-code" id="btn-renew" style="background-color: #077c22;">
-                GERAR NOVO PIX
-            </button>
-        </div>
-
-        <div class="how-to-pay" style="margin-top: 30px;">
-          <h3 style="font-size: 1rem;">Passo a passo:</h3>
-          <ul style="padding-left: 20px; color: #555; font-size: 0.9rem; line-height: 1.6;">
-             <li>Abra o app do seu banco.</li>
-             <li>Escolha <b>Pix</b> > <b>Ler QR Code</b> ou <b>Copia e Cola</b>.</li>
-             <li>Escaneie ou cole o código acima.</li>
-             <li>Confirme o pagamento.</li>
-          </ul>
-        </div>
-
-        <div class="pix-security-alert" style="margin-top: 20px; background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <i class="fa fa-shield-alt" style="color: #2196f3; font-size: 20px;"></i>
-                <div>
-                    <strong style="color: #1976d2;">Ambiente Seguro</strong>
-                    <p style="margin: 0; color: #555; font-size: 0.8rem;">Seu pagamento é processado com criptografia bancária.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="steps">
-          <div class="step current-step">
-            <div class="s-circle">1</div> <span>Pagar</span>
+          <div id="active-payment-area">
+              <div id="qrcode"></div>
+              <textarea id="pix-text" readonly></textarea>
+              <button class="copy-code" id="copy-code">Copiar código</button>
           </div>
-          <div class="step">
-            <div class="s-circle">2</div> <span>Aprovado</span>
-          </div>
-          <div class="step">
-            <div class="s-circle">3</div> <span>Entrega</span>
-          </div>
-        </div>
 
+          <div id="fallback-area">
+              <h3 style="margin: 0 0 10px 0;">O código expirou</h3>
+              <p>Não se preocupe, gere um novo código abaixo:</p>
+              <button class="copy-code" id="btn-renew" style="background: #077c22;" onclick="renovarPix()">GERAR NOVO PIX</button>
+          </div>
+
+          <div class="how-to-pay" style="margin-top: 20px;">
+            <h3 style="color: #ea1d2c">Passo a passo:</h3>
+            <p><b>1.</b> Abra o app do seu banco.</p>
+            <p><b>2.</b> Escolha Pix > Ler QR Code ou Copia e Cola.</p>
+            <p><b>3.</b> Escaneie ou cole o código acima.</p>
+            <p><b>4.</b> Confirme e aguarde a aprovação.</p>
+          </div>
+
+          <div class="steps" style="display: flex; justify-content: space-between; margin-top: 30px; opacity: 0.7;">
+            <div class="step current-step" style="font-weight: bold; color: #ea1d2c;">1. Pagar</div>
+            <div class="step">2. Aprovado</div>
+            <div class="step">3. Entrega</div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
 
   <footer>
-    <div style="text-align: center; padding: 20px; color: #fff; background: #ea1d2c; margin-top: 30px;">
-        <b>Cheff Burguer</b><br>
-        <span style="font-size: 0.9rem;">CNPJ: 37.XXX.253/0001-51</span>
-    </div>
+    <b style="text-align: center">Cheff Burguer</b>
+    <span style="font-size: 11pt; font-weight: normal; text-align: center">CNPJ: 37.XXX.253/0001-51</span>
   </footer>
 
   <script>
-    let countdownInterval;
-    let checkInterval;
-    let currentPaymentData = null;
+    let countdownInterval, checkInterval, currentPaymentData;
 
     document.addEventListener("DOMContentLoaded", () => {
-        // 1. Pegar dados da URL
+        // 1. Lê dados da URL
         const urlParams = new URLSearchParams(window.location.search);
         const dataParam = urlParams.get('data');
 
@@ -134,51 +106,46 @@
             renderInterface(currentPaymentData);
         } catch (e) {
             console.error(e);
-            Swal.fire('Erro', 'Falha ao carregar dados.', 'error');
         }
     });
 
     function renderInterface(data) {
-        const qrCodeEl = document.getElementById('qrcode');
-        const pixTextEl = document.getElementById('pix-text');
+        const qrEl = document.getElementById('qrcode');
+        const textEl = document.getElementById('pix-text');
         
-        // Texto Copia e Cola
-        pixTextEl.value = data.pix_copy_paste;
+        textEl.value = data.pix_copy_paste;
         
-        // Imagem QR Code
-        qrCodeEl.innerHTML = '';
+        qrEl.innerHTML = '';
         if (data.qr_code_base64 && data.qr_code_base64.length > 20) {
             const img = document.createElement('img');
-            // Verifica se já tem o prefixo data:image
             const prefix = data.qr_code_base64.startsWith('data:') ? '' : 'data:image/png;base64,';
             img.src = prefix + data.qr_code_base64;
-            img.style.width = '100%';
-            qrCodeEl.appendChild(img);
+            img.style.maxWidth = '250px';
+            qrEl.appendChild(img);
         } else {
-            // Fallback JS
-            new QRCode(qrCodeEl, {
+            new QRCode(qrEl, {
                 text: data.pix_copy_paste,
                 width: 250,
                 height: 250
             });
         }
 
-        // Inicia Timer e Verificação
         startTimer(data.expiration_seconds || 1800);
         startPolling(data.transactionId);
     }
 
     // Botão Copiar
-    document.getElementById('btn-copy').addEventListener("click", () => {
-        const textArea = document.getElementById('pix-text');
-        textArea.select();
+    document.getElementById('copy-code').addEventListener('click', () => {
+        const el = document.getElementById('pix-text');
+        el.select();
         document.execCommand('copy');
-        const btn = document.getElementById('btn-copy');
-        btn.innerHTML = '<i class="fa fa-check"></i> COPIADO!';
-        btn.style.backgroundColor = "#077c22";
+        const btn = document.getElementById('copy-code');
+        const original = btn.textContent;
+        btn.textContent = 'COPIADO!';
+        btn.style.background = '#077c22';
         setTimeout(() => {
-            btn.innerHTML = '<i class="fa fa-copy"></i> COPIAR CÓDIGO PIX';
-            btn.style.backgroundColor = "#ea1d2c";
+            btn.textContent = original;
+            btn.style.background = '#ea1d2c';
         }, 2000);
     });
 
@@ -196,7 +163,7 @@
 
             if (--timer < 0) {
                 clearInterval(countdownInterval);
-                clearInterval(checkInterval); // Para de verificar
+                clearInterval(checkInterval);
                 document.getElementById('active-payment-area').style.display = 'none';
                 document.getElementById('fallback-area').style.display = 'block';
                 display.textContent = "EXPIRADO";
@@ -204,35 +171,27 @@
         }, 1000);
     }
 
-    function startPolling(transactionId) {
-        if(!transactionId) return;
+    function startPolling(id) {
+        if(!id) return;
         clearInterval(checkInterval);
-        
         checkInterval = setInterval(async () => {
             try {
-                const res = await fetch(`/api/check-status?id=${transactionId}`);
-                const statusData = await res.json();
-
-                if (statusData.paid) {
+                const res = await fetch(`/api/check-status?id=${id}`);
+                const status = await res.json();
+                if(status.paid) {
                     clearInterval(checkInterval);
                     clearInterval(countdownInterval);
-                    
-                    // Atualiza Steps
-                    document.querySelectorAll('.step')[0].classList.remove('current-step');
-                    document.querySelectorAll('.step')[1].classList.add('current-step');
-
                     Swal.fire({
                         icon: 'success',
                         title: 'Pagamento Aprovado!',
-                        text: 'Seu pedido está sendo preparado.',
-                        timer: 3000,
-                        showConfirmButton: false
+                        text: 'Seu pedido foi confirmado.',
+                        showConfirmButton: false,
+                        timer: 3000
                     }).then(() => {
-                        // Redireciona para página de sucesso ou mantém na tela
                         window.location.href = '/entrega'; 
                     });
                 }
-            } catch (e) { console.log("Aguardando..."); }
+            } catch(e) {}
         }, 5000);
     }
 
@@ -240,38 +199,28 @@
         const btn = document.getElementById('btn-renew');
         btn.innerHTML = 'GERANDO...';
         btn.disabled = true;
-
         try {
             const payload = {
                 customer: currentPaymentData.customer,
-                total: currentPaymentData.amount, // Mantém o valor original
+                total: currentPaymentData.amount,
                 items: currentPaymentData.items
             };
-
-            const response = await fetch('/api/generate-pix', {
+            const res = await fetch('/api/generate-pix', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
-
-            const newData = await response.json();
-
-            if (newData.success) {
-                currentPaymentData = newData; // Atualiza dados
-                
+            const newData = await res.json();
+            if(newData.success) {
                 document.getElementById('fallback-area').style.display = 'none';
                 document.getElementById('active-payment-area').style.display = 'block';
-                document.getElementById('time-display').textContent = "AGUARDE...";
-                
                 renderInterface(newData);
-                btn.innerHTML = 'GERAR NOVO PIX';
                 btn.disabled = false;
-            } else { throw new Error(newData.message); }
-
-        } catch (error) {
-            Swal.fire('Erro', 'Não foi possível renovar o Pix.', 'error');
-            btn.innerHTML = 'TENTAR NOVAMENTE';
+                btn.innerHTML = 'GERAR NOVO PIX';
+            }
+        } catch(e) {
             btn.disabled = false;
+            alert('Erro ao renovar. Tente novamente.');
         }
     }
   </script>
