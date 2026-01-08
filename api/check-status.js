@@ -1,37 +1,34 @@
 const axios = require('axios');
 
-// SEGURANÇA: Busca a mesma variável de ambiente
 const SECRET_KEY = process.env.OTIMIZE_SECRET_KEY;
-const BASE_URL = 'https://api.otimizepagamentos.com/v1/transactions';
+const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
 
     const { id } = req.query;
 
     if (!id) return res.status(400).json({ error: 'ID obrigatório' });
-
+    
     if (!SECRET_KEY) {
-        return res.status(500).json({ error: 'Configuração de servidor incompleta (Chave ausente)' });
+        return res.status(500).json({ error: 'Chave de API não configurada' });
     }
 
     try {
         const authString = Buffer.from(`${SECRET_KEY}:`).toString('base64');
 
-        const response = await axios.get(`${BASE_URL}/transactions/${id}`, {
+        // URL correta: .../transactions/ID
+        const response = await axios.get(`${API_URL}/${id}`, {
             headers: { 'Authorization': `Basic ${authString}` }
         });
 
         const status = response.data.status;
-
-        // Lista de status considerados "Pagos"
         const isPaid = ['paid', 'captured', 'authorized', 'completed'].includes(status);
 
         return res.status(200).json({ 
@@ -40,7 +37,7 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error("Erro check-status:", error.message);
-        return res.status(500).json({ error: 'Erro ao verificar status na API' });
+        console.error("Erro status:", error.message);
+        return res.status(500).json({ error: 'Erro ao verificar status' });
     }
-}
+};

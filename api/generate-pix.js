@@ -6,7 +6,7 @@ const SECRET_KEY = process.env.OTIMIZE_SECRET_KEY;
 // 2. URL CORRETA DA OTIMIZE
 const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     // Configuração de CORS
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,9 +16,9 @@ export default async function handler(req, res) {
         'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
     );
 
+    // Responde ao "preflight" do navegador
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
 
     if (req.method !== 'POST') {
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     try {
         const { customer, total, items } = req.body;
 
-        console.log("Recebendo requisição Pix:", { customerName: customer?.nome, total });
+        console.log("Processando Pix para:", customer?.nome);
 
         // --- SANITIZAÇÃO DE DADOS ---
 
@@ -92,8 +92,6 @@ export default async function handler(req, res) {
             ]
         };
 
-        console.log("Enviando para Otimize:", JSON.stringify(payload));
-
         // 5. Chamada à API Externa
         const response = await axios.post(API_URL, payload, {
             headers: {
@@ -118,8 +116,9 @@ export default async function handler(req, res) {
     } catch (error) {
         console.error("Erro na API Otimize:", error.response?.data || error.message);
         
-        // Retorna erro formatado para o frontend (sem expor stack trace)
-        const errorMessage = error.response?.data?.error?.message || error.message || "Erro desconhecido ao processar pagamento.";
+        // Tenta pegar a mensagem de erro específica da Otimize
+        const apiErrorMsg = error.response?.data?.error?.message || error.response?.data?.message;
+        const errorMessage = apiErrorMsg || error.message || "Erro desconhecido ao processar pagamento.";
         
         return res.status(500).json({
             success: false,
@@ -127,4 +126,4 @@ export default async function handler(req, res) {
             details: error.response?.data
         });
     }
-}
+};

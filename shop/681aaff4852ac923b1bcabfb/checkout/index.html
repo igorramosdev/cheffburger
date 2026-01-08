@@ -10,6 +10,7 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
@@ -130,33 +131,23 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       const paymentBtn = document.getElementById('generate-payment');
-      
-      // 1. Carregar Carrinho do LocalStorage
       let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
       
-      // Função de Cálculo de Total
       function calcularTotal() {
         let total = 0;
-        
-        // Soma itens do carrinho
         carrinho.forEach(item => {
           let preco = typeof item.preco === 'string' 
              ? parseFloat(item.preco.replace(',','.')) 
              : item.preco;
           total += (preco || 0) * (item.quantidade || 1);
         });
-
-        // Soma Order Bumps marcados
         document.querySelectorAll('._orderbump:checked').forEach(bump => {
           total += parseFloat(bump.getAttribute('price'));
         });
-
-        // Atualiza Interface
         document.getElementById('total-price').textContent = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
         return total;
       }
 
-      // Renderiza Itens do Carrinho
       const container = document.getElementById('checkout-cart-items');
       if(carrinho.length === 0) container.innerHTML = "<p style='text-align:center; color:#888;'>Seu carrinho está vazio.</p>";
       else {
@@ -172,11 +163,9 @@
         });
       }
 
-      // Eventos de Atualização
       calcularTotal();
       document.querySelectorAll('._orderbump').forEach(el => el.addEventListener('change', calcularTotal));
 
-      // Busca CEP
       document.getElementById('cep').addEventListener('blur', async function() {
         const cep = this.value.replace(/\D/g, '');
         if(cep.length === 8) {
@@ -195,14 +184,14 @@
         }
       });
 
-      // LÓGICA DE PAGAMENTO (BTN CLICK)
+      // LÓGICA DE PAGAMENTO
       paymentBtn.addEventListener('click', async () => {
         const nome = document.getElementById('nome').value.trim();
         const cpf = document.getElementById('cpf').value.trim();
         const tel = document.getElementById('telefone').value.trim();
 
-        // Validação Simples
         if(!nome || cpf.length < 14 || tel.length < 14) {
+          // Uso seguro do Swal
           if(typeof Swal !== 'undefined') {
               Swal.fire('Atenção', 'Preencha Nome, Telefone e CPF corretamente.', 'warning');
           } else {
@@ -211,11 +200,9 @@
           return;
         }
 
-        // Bloqueia botão
         paymentBtn.disabled = true;
         paymentBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
-        // Prepara Itens Finais (Carrinho + Bumps)
         let itensFinais = carrinho.map(i => ({
              nome: i.nome,
              preco: typeof i.preco === 'string' ? parseFloat(i.preco.replace(',','.')) : i.preco,
@@ -241,25 +228,24 @@
         try {
           console.log("Enviando pagamento...", payload);
           
-          // Requisição ao Backend (Caminho absoluto recomendado)
+          // Requisição ao Backend
           const res = await fetch('/api/generate-pix', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
           });
 
-          // Tenta ler como JSON, se falhar, lê como texto para debug
           const textResponse = await res.text();
           let data;
           try {
               data = JSON.parse(textResponse);
           } catch(e) {
-              console.error("Resposta não-JSON:", textResponse);
-              throw new Error("Erro de comunicação com o servidor. Tente novamente.");
+              console.error("Resposta não-JSON do servidor:", textResponse);
+              throw new Error("Erro interno no servidor. Verifique os logs.");
           }
 
           if(res.ok && data.success) {
-            // SUCESSO! Redireciona
+            // Sucesso
             const dataStr = encodeURIComponent(JSON.stringify(data));
             window.location.href = `/payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${dataStr}`;
           } else {
