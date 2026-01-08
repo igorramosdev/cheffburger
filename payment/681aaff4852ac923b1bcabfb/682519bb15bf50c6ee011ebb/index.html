@@ -6,6 +6,7 @@
   <title>Pagamento Pix</title>
   
   <link type="text/css" href="../../../css/delivry-25.css" rel="stylesheet">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,14 +14,15 @@
   <style>
     /* CORREÇÃO DO FOOTER FLUTUANTE */
     footer {
-        position: static !important; /* Remove fixação */
+        position: relative !important; /* Remove fixação nesta página */
+        bottom: auto !important;
+        margin-top: 40px !important;
         width: 100%;
         display: block;
         padding: 20px;
         background: #ea1d2c;
         color: white;
         text-align: center;
-        margin-top: 40px;
     }
 
     .containerFinalizar {
@@ -39,6 +41,7 @@
     #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
     
     textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; font-size: 12px; color: #555; }
+    
     .copy-code { width: 100%; background-color: #ea1d2c; color: white; border: none; border-radius: 50px; padding: 15px; cursor: pointer; font-weight: bold; margin-top: 10px; }
     
     #timer-box { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
@@ -68,6 +71,7 @@
       
       <div id="detalhesProduto">
         <div class="payment">
+          
           <div id="timer-box">Expira em: <span id="time-display">--:--</span></div>
 
           <div id="active-payment-area">
@@ -96,6 +100,7 @@
             <div class="step"><div class="s-circle">2</div> Aprovado</div>
             <div class="step"><div class="s-circle">3</div> Entrega</div>
           </div>
+
         </div>
       </div>
     </div>
@@ -107,10 +112,6 @@
   </footer>
 
   <script>
-    // [MANTER O MESMO SCRIPT QUE JÁ FUNCIONA NA PARTE DE PAGAMENTO]
-    // ... (Copiar o script da resposta anterior aqui se precisar, mas a lógica do JS do pagamento já estava ok)
-    // O foco aqui foi o CSS do Footer.
-    
     let countdownInterval, checkInterval, currentPaymentData;
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -130,8 +131,10 @@
     function renderInterface(data) {
         const qrEl = document.getElementById('qrcode');
         const textEl = document.getElementById('pix-text');
+        
         textEl.value = data.pix_copy_paste;
         qrEl.innerHTML = '';
+        
         if (data.qr_code_base64) {
             const img = document.createElement('img');
             const prefix = data.qr_code_base64.startsWith('data:') ? '' : 'data:image/png;base64,';
@@ -141,6 +144,7 @@
         } else {
             new QRCode(qrEl, { text: data.pix_copy_paste, width: 250, height: 250 });
         }
+
         startTimer(data.expiration_seconds || 1800);
         startPolling(data.transactionId);
     }
