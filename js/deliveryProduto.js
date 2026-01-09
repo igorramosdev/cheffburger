@@ -116,9 +116,7 @@ $(document).ready(function () {
 			beforeSend: function () { },
 			success: function (data) {
 				$('body').css('overflow', 'hidden');
-				if (pixel != "") {
-					fbq('track', 'ViewContent');
-				}
+				
 				//$("#produto").html(data).show('slow');
 				$("#produto").html(data).show();
 				$('#produto').animate({ scrollTop: 0 }, 'slow');
@@ -349,9 +347,7 @@ $(document).ready(function () {
 										beforeSend: function () { },
 										success: function (data) {
 											$('#modalCarregando').hide();
-											if (pixel != "") {
-												fbq('track', 'AddToCart');
-											}
+											
 											let produto = $('#produto').html();
 											if ($('.lojaFechada').length > 0 || produto == undefined) {
 												window.location.href = "loja/" + urlLoja;
@@ -675,9 +671,7 @@ $(document).ready(function () {
 							$('#modalCarregando').hide();
 						} else {
 
-							if (pixel != "") {
-								fbq('track', 'Purchase', { value: ((subtotal + taxa) - descontoPorPontosFidelidade - descontoPorCupom), currency: 'BRL' });
-							}
+							
 
 							if (obj.rastreamento) {
 								if (obj.pedido) {

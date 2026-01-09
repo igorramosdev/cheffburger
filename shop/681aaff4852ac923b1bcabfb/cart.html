@@ -12,48 +12,12 @@
                   <link rel="shortcut icon" type="image/jpg"
                     href="https://scontent.fgyn22-1.fna.fbcdn.net/v/t39.30808-6/487529998_1268865461423703_1918764225145965035_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=_JnDNq1AW4QQ7kNvwGY41GY&_nc_oc=AdmCm4242ZtBRMw1VG090S6p8Q363v7DtzokiZA9P0DItjz3CKwi_rxWeBV-HQaBYN8&_nc_zt=23&_nc_ht=scontent.fgyn22-1.fna&_nc_gid=Mwk1c33rVDonTU3hqDHxFw&oh=00_AfPWgYJjoxVWLSoNGAhbowHVG8qStnsB_vM-s6j4wtEd8g&oe=686C78E3">
                   <title>Carrinho</title>
-                  <script>
-                    window.googlePixelId = "6939e6eb93ad351dc55b7088";
-                    var a = document.createElement("script");
-                    a.setAttribute("async", "");
-                    a.setAttribute("defer", "");
-                    a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-google.js");
-                    document.head.appendChild(a);
-                  </script>
-                  <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids
-                    async defer></script>
+                  
                   <!-- SweetAlert2 -->
                   <script src="../../npm/sweetalert2%4011"></script>
                   <link rel="stylesheet" href="../../icon?family=Material+Icons">
                   <link type="text/css" href="../../css/delivry.css" rel="stylesheet">
-                  <script>
-                    let params = {
-                      src: "",
-                      sck: "",
-                      utm_source: "",
-                      utm_campaign: "",
-                      utm_medium: "",
-                      utm_content: "",
-                      utm_term: "",
-                      gclid: "",
-                      fbclid: "",
-                    };
-
-                    for (let key in params) {
-                      const url_params = new URLSearchParams(window.location.search);
-                      const get_param = url_params.get(key);
-
-                      if (typeof get_param == "string") {
-                        if (get_param.length > 0) {
-                          params[key] = get_param;
-                        }
-                      }
-                    }
-
-                    localStorage.setItem("tracking_data", JSON.stringify(params));
-                  </script>
-
-
+                  
 
 
                   <style>
@@ -448,14 +412,12 @@
                   </header>
 
 
-
                   <div>
                     <div class="container containerFinalizar">
                       <h2 style="width: 100%;text-align: center;">Seu carrinho:</h2>
                       <a class="voltar" href="../../index.html" title="Voltar"><i class="fa-solid fa-chevron-left"></i>
                         VOLTAR</a>
                       <div id="detalhesProduto">
-
 
 
                         <div id="cart-products-container" class="cart-products">
@@ -676,9 +638,7 @@
                         <script>
                           // Função para ir para o checkout
                           function finalizar() {
-                            const trackingData = JSON.parse(localStorage.getItem("tracking_data") || '{}');
-                            const urlParams = new URLSearchParams(trackingData).toString();
-                            window.location.href = 'checkout/index.htm' + (urlParams ? `?${urlParams}` : '');
+                            window.location.href = 'checkout/index.htm';
                           }
                         </script>
 
@@ -919,7 +879,6 @@
                             if (spanDesconto) spanDesconto.innerText = `R$ ${desconto.toFixed(2).replace('.', ',')}`;
                             if (spanTotal) spanTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
                           }
-
 
 
                           // =============================================================
