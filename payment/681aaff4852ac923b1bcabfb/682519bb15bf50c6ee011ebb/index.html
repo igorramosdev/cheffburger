@@ -122,17 +122,6 @@
     
     .hidden { display: none !important; }
     
-    /* Total do pedido */
-    .cart-total {
-        text-align: right;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #077C22;
-        margin-top: 15px;
-        padding-top: 10px;
-        border-top: 2px solid #eee;
-    }
-    
     @media screen and (max-width: 768px) {
         .containerFinalizar { margin: 20px 10px; }
     }
@@ -315,15 +304,12 @@
     function renderizarCarrinho(apiData) {
         const container = document.getElementById('cart-body');
         
-        // CORREÇÃO: Usa os items enviados pelo checkout (já inclui order bumps)
+        // USA ITEMS DA API (Que contém tudo, incluindo bumps)
         let items = [];
         if (apiData && apiData.items && apiData.items.length > 0) {
             items = apiData.items;
         } else {
-            // Fallback para localStorage
-            try { 
-                items = JSON.parse(localStorage.getItem('meuCarrinho')) || []; 
-            } catch(e){}
+            try { items = JSON.parse(localStorage.getItem('meuCarrinho')) || []; } catch(e){}
         }
 
         if (items.length > 0) {
@@ -331,40 +317,58 @@
             let totalCalculado = 0;
             
             items.forEach(item => {
-                // CORREÇÃO DE VALORES: Tratamento para diferentes formatos
-                let precoEmReais = 0;
+                // CORREÇÃO DOS VALORES - O preço vem como float do checkout (ex: 32.90)
+                let precoVal = 0;
                 
-                // Se tem unitPrice (em centavos), usa ele
-                if(item.unitPrice !== undefined && item.unitPrice !== null) {
-                    precoEmReais = item.unitPrice / 100;
-                }
-                // Senão, usa o campo preco (pode ser string ou float)
-                else if(item.preco !== undefined && item.preco !== null) {
-                    let precoStr = String(item.preco).replace('R$', '').trim();
-                    // Trata formato brasileiro "24,40" ou americano "24.40"
-                    if(precoStr.includes(',') && !precoStr.includes('.')) {
-                        // Formato brasileiro: "24,40"
-                        precoStr = precoStr.replace(',', '.');
-                    } else if(precoStr.includes('.') && precoStr.includes(',')) {
-                        // Formato com milhar: "1.234,56"
-                        precoStr = precoStr.replace('.', '').replace(',', '.');
+                // O checkout envia preco como float (ex: 8.00, 32.90)
+                if(item.preco !== undefined && item.preco !== null) {
+                    // Se for número, usa direto
+                    if(typeof item.preco === 'number') {
+                        precoVal = item.preco;
+                    } else {
+                        // Se for string, converte
+                        let p = String(item.preco).replace('R$','').trim();
+                        // Trata formato brasileiro "32,90" -> "32.90"
+                        if(p.includes(',') && !p.includes('.')) {
+                            p = p.replace(',', '.');
+                        } else if(p.includes('.') && p.includes(',')) {
+                            // Formato "1.234,56" -> "1234.56"
+                            p = p.replace(/\./g, '').replace(',', '.');
+                        }
+                        precoVal = parseFloat(p);
                     }
-                    precoEmReais = parseFloat(precoStr);
                 }
                 
-                // Garante que é um número válido
-                if(isNaN(precoEmReais)) precoEmReais = 0;
+                // Garante que é número válido
+                if(isNaN(precoVal)) precoVal = 0;
 
-                let nome = item.nome || item.title || 'Produto';
-                let qtd = parseInt(item.quantidade || item.quantity) || 1;
+                let nome = item.title || item.nome || 'Produto';
+                let qtd = parseInt(item.quantity || item.quantidade) || 1;
                 
                 // Imagem: prioriza a que veio do checkout
                 let imgUrl = 'https://placehold.co/50';
                 if(item.imagem && item.imagem.length > 5) {
                     imgUrl = item.imagem;
+                } else if(nome.includes("Brigadeiro")) {
+                    imgUrl = 'https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp';
+                } else if(nome.includes("Prestígio")) {
+                    imgUrl = 'https://i.ibb.co/hqXP2qX/1761874938086blob.webp';
+                } else {
+                    // Tenta recuperar imagem do localStorage para itens normais
+                    try {
+                        const localCart = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+                        const localItem = localCart.find(i => i.nome === nome);
+                        if(localItem && localItem.imagem) {
+                            imgUrl = localItem.imagem;
+                            if(imgUrl && !imgUrl.startsWith('http')) {
+                                let cleanPath = imgUrl.replace('./', '').replace('../', '');
+                                imgUrl = `../../../shop/681aaff4852ac923b1bcabfb/checkout/${cleanPath}`;
+                            }
+                        }
+                    } catch(e){}
                 }
                 
-                const subtotal = precoEmReais * qtd;
+                const subtotal = precoVal * qtd;
                 totalCalculado += subtotal;
                 
                 // Identifica visualmente se é order bump
@@ -394,7 +398,7 @@
             
             // Adiciona o total ao final
             container.innerHTML += `
-                <div class="cart-total">
+                <div style="text-align: right; font-size: 1.2rem; font-weight: bold; color: #077C22; margin-top: 15px; padding-top: 10px; border-top: 2px solid #eee;">
                     Total: R$ ${totalCalculado.toFixed(2).replace('.',',')}
                 </div>
             `;
@@ -436,11 +440,11 @@
         el.select();
         document.execCommand('copy');
         const btn = document.getElementById('btn-copy');
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-check"></i> CÓDIGO COPIADO!';
+        const original = btn.innerText;
+        btn.innerText = 'CÓDIGO COPIADO!';
         btn.style.backgroundColor = '#077c22';
         setTimeout(() => {
-            btn.innerHTML = original;
+            btn.innerText = original;
             btn.style.backgroundColor = '#ea1d2c';
         }, 2000);
     });

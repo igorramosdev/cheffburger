@@ -58,7 +58,6 @@
     .input input:focus { border-color: #EA1D2C; }
     .input label { font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block; color: #333; }
     .input { margin-bottom: 15px; }
-    .input-error { border: 1px solid red !important; }
 
     /* Produtos e Ofertas */
     .cart-product { 
@@ -84,44 +83,6 @@
     }
     .orderbump:hover { border-color: #EA1D2C; }
     .orderbump input[type="checkbox"] { accent-color: #EA1D2C; width: 20px; height: 20px; }
-
-    /* Opções de Frete */
-    .freight {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 20px;
-    }
-    .opt {
-        border-radius: 10px;
-        border: 2px solid #EA1D2C;
-        padding: 15px 10px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-    }
-    .opt-1 {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    .opt-1-1 {
-        display: flex;
-        flex-direction: column;
-    }
-    .opt-1-1-span-1 {
-        font-weight: bold;
-    }
-    .opt-1-1-span-2 {
-        font-size: .8rem;
-        color: #666;
-    }
-    input[type="radio"] {
-        accent-color: #EA1D2C;
-        width: 20px;
-        height: 20px;
-    }
 
     /* Provas Sociais (Ícones Pequenos) */
     .review { border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 10px; background: #fff; }
@@ -205,13 +166,13 @@
           </div>
 
           <!-- OPÇÃO DE ENTREGA -->
-          <div class="freight hidden" id="freight-options">
-            <label for="opt-entrega" class="opt">
-              <div class="opt-1">
-                <input type="radio" id="opt-entrega" name="opt" value="0" checked>
-                <div class="opt-1-1">
-                  <span class="opt-1-1-span-1">Entregar Agora</span>
-                  <span class="opt-1-1-span-2">20 a 30 min</span>
+          <div class="freight hidden" id="freight-options" style="margin-top: 20px;">
+            <label for="opt-entrega" style="border-radius: 10px; border: 2px solid #EA1D2C; padding: 15px 10px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+              <div style="display: flex; align-items: center; gap: 15px;">
+                <input type="radio" id="opt-entrega" name="opt" value="0" checked style="accent-color: #EA1D2C; width: 20px; height: 20px;">
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-weight: bold;">Entregar Agora</span>
+                  <span style="font-size: .8rem; color: #666;">20 a 30 min</span>
                 </div>
               </div>
               <span style="font-weight: bold; color: #077C22;">Grátis</span>
@@ -231,7 +192,7 @@
               </div>
             </div>
             <div class="add">
-              <input type="checkbox" id="bump1" class="_orderbump" data-price="8.00" data-name="Bolo de Pote Brigadeiro" data-image="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp">
+              <input type="checkbox" id="bump1" class="_orderbump" price="8.00" o-name="Bolo de Pote Brigadeiro" o-image="https://i.ibb.co/d4cJNKJ0/1761874938117blob.webp">
             </div>
           </label>
 
@@ -244,7 +205,7 @@
               </div>
             </div>
             <div class="add">
-              <input type="checkbox" id="bump2" class="_orderbump" data-price="8.00" data-name="Bolo de Pote Prestígio" data-image="https://i.ibb.co/hqXP2qX/1761874938086blob.webp">
+              <input type="checkbox" id="bump2" class="_orderbump" price="8.00" o-name="Bolo de Pote Prestígio" o-image="https://i.ibb.co/hqXP2qX/1761874938086blob.webp">
             </div>
           </label>
 
@@ -312,76 +273,47 @@
         const paymentButton = document.getElementById('generate-payment');
         const totalPriceSpan = document.getElementById('total-price');
         
-        let baseTotal = 0;
-
-        // 2. FUNÇÃO: Atualizar carrinho no localStorage quando order bump é marcado/desmarcado
-        function atualizarCarrinhoComOrderBumps() {
-            let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
-            
-            // Remove order bumps antigos do carrinho
-            carrinho = carrinho.filter(item => !(item.id && item.id.startsWith('bump')));
-            
-            // Adiciona order bumps marcados
-            document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
-                carrinho.push({
-                    id: checkbox.id,
-                    nome: checkbox.getAttribute('data-name'),
-                    preco: checkbox.getAttribute('data-price'),
-                    imagem: checkbox.getAttribute('data-image'),
-                    quantidade: 1,
-                    isOrderBump: true
-                });
-            });
-            
-            // Salva no localStorage
-            localStorage.setItem('meuCarrinho', JSON.stringify(carrinho));
-            
-            // Atualiza a interface
-            renderizarCarrinho();
+        // 2. FUNÇÃO: CONVERTER PREÇO
+        function getPrice(val) {
+            if (!val) return 0;
+            let str = String(val).replace(/[^0-9,.-]+/g,"").replace(",", ".");
+            let num = parseFloat(str);
+            return isNaN(num) ? 0 : num;
         }
 
-        // 3. RENDERIZAÇÃO DO CARRINHO E CÁLCULO DO TOTAL
-        function renderizarCarrinho() {
+        // 3. RENDERIZAÇÃO E SOMA DE VALORES
+        function atualizarInterface() {
             let carrinho = [];
             try {
                 carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
             } catch(e) { console.error("Erro carrinho:", e); }
             
-            baseTotal = 0;
+            let total = 0;
             checkoutCartItemsContainer.innerHTML = '';
 
-            if(carrinho.length === 0) {
+            // Itens do LocalStorage
+            let itensReais = carrinho.filter(i => !i.id || !String(i.id).startsWith('bump-'));
+            
+            if(itensReais.length === 0) {
                 checkoutCartItemsContainer.innerHTML = "<p style='text-align:center; color:#888; padding:20px;'>Seu carrinho está vazio.</p>";
-                totalPriceSpan.textContent = 'R$ 0,00';
-                return;
             }
 
-            carrinho.forEach(item => {
-                // Converte preço para número (pode vir como "24,40" ou "24.40" ou 24.40)
-                let precoStr = String(item.preco).replace('R$', '').trim();
-                precoStr = precoStr.replace('.', '').replace(',', '.'); // "24,40" -> "24.40"
-                let preco = parseFloat(precoStr);
-                if(isNaN(preco)) preco = 0;
-                
+            itensReais.forEach(item => {
+                let preco = getPrice(item.preco);
                 let qtd = parseInt(item.quantidade) || 1;
-                baseTotal += preco * qtd;
+                total += preco * qtd;
 
                 let img = item.imagem || 'https://placehold.co/75';
                 if(img && !img.startsWith('http')) {
                     img = '../../../' + img.replace('./', '');
                 }
 
-                // Identifica se é order bump para destacar visualmente
-                const isOrderBump = item.isOrderBump === true || (item.id && item.id.startsWith('bump'));
-                const bgColor = isOrderBump ? '#fff9db' : '#fff';
-                const badge = isOrderBump ? '<span style="font-size:0.7rem; background:#077c22; color:#fff; padding:2px 6px; border-radius:10px; margin-left:5px;">OFERTA</span>' : '';
-
                 checkoutCartItemsContainer.innerHTML += `
-                    <div class="cart-product" style="background-color: ${bgColor};">
+                    <div class="cart-product">
                         <div class="c-p-01">
-                            <img src="${img}" onerror="this.src='https://placehold.co/75'">
+                            <img src="${img}">
                             <div class="info">
-                                <span class="product-name">${item.nome}${badge}</span>
+                                <span class="product-name">${item.nome}</span>
                                 <span style="font-size: 0.9em; color: #555;">${qtd} x R$ ${preco.toFixed(2).replace('.',',')}</span>
                             </div>
                         </div>
@@ -390,15 +322,37 @@
                 `;
             });
 
-            totalPriceSpan.textContent = baseTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            // Order Bumps
+            document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
+                let nome = checkbox.getAttribute('o-name');
+                let preco = parseFloat(checkbox.getAttribute('price')) || 0;
+                let img = checkbox.getAttribute('o-image');
+                
+                total += preco;
+
+                checkoutCartItemsContainer.innerHTML += `
+                    <div class="cart-product" style="background-color: #fff9db;">
+                        <div class="c-p-01">
+                            <img src="${img}">
+                            <div class="info">
+                                <span class="product-name">${nome}</span>
+                                <span style="font-size: 0.85em; color: #555;">Oferta Adicionada</span>
+                            </div>
+                        </div>
+                        <div style="font-weight: bold;">R$ ${preco.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                `;
+            });
+
+            totalPriceSpan.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            return total;
         }
 
-        // 4. Event listeners para order bumps
         document.querySelectorAll('._orderbump').forEach(el => {
-            el.addEventListener('change', atualizarCarrinhoComOrderBumps);
+            el.addEventListener('change', atualizarInterface);
         });
 
-        // 5. CEP - Busca endereço e mostra opção de frete
+        // 4. CEP
         document.getElementById('cep').addEventListener('blur', async function() {
             const val = this.value.replace(/\D/g, '');
             if(val.length === 8) {
@@ -414,16 +368,13 @@
                         document.getElementById('state').value = data.uf;
                         document.getElementById('number').focus();
                     }
-                } catch(e){
-                    console.error('Erro ao buscar CEP:', e);
-                }
+                } catch(e){}
             }
         });
 
-        // 6. Renderiza carrinho inicial
-        renderizarCarrinho();
+        // 5. Pagamento
+        atualizarInterface();
         
-        // 7. PAGAMENTO - Envia dados para a API
         paymentButton.addEventListener('click', async () => {
             const nome = document.getElementById('nome').value.trim();
             const cpf = document.getElementById('cpf').value.trim();
@@ -438,41 +389,29 @@
             paymentButton.disabled = true;
             paymentButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processando...';
 
-            // Pega o carrinho completo do localStorage (já inclui order bumps)
-            const carrinhoCompleto = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
-            
-            // Prepara os itens para a API com valores em CENTAVOS
-            const itensParaAPI = carrinhoCompleto.map(item => {
-                let precoStr = String(item.preco).replace('R$', '').trim();
-                precoStr = precoStr.replace('.', '').replace(',', '.');
-                const precoFloat = parseFloat(precoStr) || 0;
-                const precoCentavos = Math.round(precoFloat * 100); // Converte para centavos
-                
-                return {
-                    nome: item.nome,
-                    preco: precoFloat, // Mantém o float para compatibilidade
-                    unitPrice: precoCentavos, // Em centavos para a API
-                    quantidade: parseInt(item.quantidade) || 1,
-                    imagem: item.imagem || '',
-                    isOrderBump: item.isOrderBump || false
-                };
+            let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+            let itensPayload = carrinho.filter(i => !i.id || !String(i.id).startsWith('bump-')).map(i => ({
+                nome: i.nome,
+                preco: parseFloat(String(i.preco).replace(',','.')),
+                quantidade: i.quantidade,
+                imagem: i.imagem || ''
+            }));
+
+            // Adiciona order bumps selecionados ao payload
+            document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
+                itensPayload.push({
+                    nome: checkbox.getAttribute('o-name'),
+                    preco: parseFloat(checkbox.getAttribute('price')),
+                    quantidade: 1,
+                    imagem: checkbox.getAttribute('o-image') || '',
+                    isOrderBump: true
+                });
             });
 
-            // Calcula o total em centavos
-            const totalCentavos = itensParaAPI.reduce((sum, item) => {
-                return sum + (item.unitPrice * item.quantidade);
-            }, 0);
-
             const payload = {
-                customer: { 
-                    nome, 
-                    cpf, 
-                    telefone: tel, 
-                    email: "cliente@email.com" 
-                },
-                total: totalCentavos / 100, // Total em reais para a API
-                totalCentavos: totalCentavos, // Total em centavos
-                items: itensParaAPI
+                customer: { nome, cpf, telefone: tel, email: "cliente@email.com" },
+                total: atualizarInterface(),
+                items: itensPayload
             };
 
             try {
@@ -485,10 +424,6 @@
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    // Adiciona os itens ao resultado para passar para a página de pagamento
-                    result.items = itensParaAPI;
-                    result.totalCentavos = totalCentavos;
-                    
                     const dataStr = encodeURIComponent(JSON.stringify(result));
                     window.location.href = `../../../payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${dataStr}`;
                 } else {
