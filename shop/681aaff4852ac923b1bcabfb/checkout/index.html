@@ -164,20 +164,6 @@
                   <div class="input" style="flex:1"><label>Estado</label><input type="text" id="state"></div>
               </div>
           </div>
-
-          <!-- OPÇÃO DE ENTREGA -->
-          <div class="freight hidden" id="freight-options" style="margin-top: 20px;">
-            <label for="opt-entrega" style="border-radius: 10px; border: 2px solid #EA1D2C; padding: 15px 10px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
-              <div style="display: flex; align-items: center; gap: 15px;">
-                <input type="radio" id="opt-entrega" name="opt" value="0" checked style="accent-color: #EA1D2C; width: 20px; height: 20px;">
-                <div style="display: flex; flex-direction: column;">
-                  <span style="font-weight: bold;">Entregar Agora</span>
-                  <span style="font-size: .8rem; color: #666;">20 a 30 min</span>
-                </div>
-              </div>
-              <span style="font-weight: bold; color: #077C22;">Grátis</span>
-            </label>
-          </div>
         </div>
 
         <div class="payment">
@@ -361,7 +347,6 @@
                     const data = await res.json();
                     if(!data.erro) {
                         document.getElementById('address-container').classList.remove('hidden');
-                        document.getElementById('freight-options').classList.remove('hidden');
                         document.getElementById('address').value = data.logradouro;
                         document.getElementById('neighborhood').value = data.bairro;
                         document.getElementById('city').value = data.localidade;
@@ -397,7 +382,7 @@
                 imagem: i.imagem || ''
             }));
 
-            // Adiciona order bumps selecionados ao payload
+            // CORREÇÃO: Adiciona order bumps com imagem ao payload
             document.querySelectorAll('._orderbump:checked').forEach(checkbox => {
                 itensPayload.push({
                     nome: checkbox.getAttribute('o-name'),
@@ -424,6 +409,8 @@
                 const result = await response.json();
 
                 if (response.ok && result.success) {
+                    // CORREÇÃO: Adiciona os items (incluindo order bumps) ao result
+                    result.items = itensPayload;
                     const dataStr = encodeURIComponent(JSON.stringify(result));
                     window.location.href = `../../../payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/index.html?data=${dataStr}`;
                 } else {

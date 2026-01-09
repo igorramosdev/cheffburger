@@ -317,7 +317,7 @@
             let totalCalculado = 0;
             
             items.forEach(item => {
-                // CORREÇÃO DOS VALORES - O preço vem como float do checkout (ex: 32.90)
+                // CORREÇÃO DOS VALORES - O preço vem como float do checkout (ex: 8.00, 32.90)
                 let precoVal = 0;
                 
                 // O checkout envia preco como float (ex: 8.00, 32.90)
@@ -372,7 +372,7 @@
                 totalCalculado += subtotal;
                 
                 // Identifica visualmente se é order bump
-                const isOrderBump = item.isOrderBump === true;
+                const isOrderBump = item.isOrderBump === true || nome.includes('Brigadeiro') || nome.includes('Prestígio');
                 const bgColor = isOrderBump ? '#fff9db' : '#fff';
                 const badgeHtml = isOrderBump ? '<span style="font-size:0.65rem; background:#077c22; color:#fff; padding:2px 5px; border-radius:8px; margin-left:5px;">OFERTA</span>' : '';
 
