@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* Estilos Básicos */
-    footer { position: static !important; margin-top: 40px; width: 100%; padding: 20px; background: #ea1d2c; color: white; text-align: center; }
+    /* Correções de Layout */
+    footer { position: static !important; margin-top: 40px !important; width: 100%; display: block; padding: 20px; background: #ea1d2c; color: white; text-align: center; }
     .containerFinalizar { max-width: 600px; margin: 40px auto; background: white; border: 2px solid #cecece; border-radius: 20px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     h1, h2, h3 { color: #ea1d2c; }
     header#topo .cover { background-color: #ea1d2c; }
@@ -23,7 +23,6 @@
     #qrcode img { max-width: 250px; border-radius: 10px; border: 1px solid #eee; padding: 5px; }
     textarea { width: 100%; height: 80px; padding: 10px; border: 2px dashed #ea1d2c; border-radius: 10px; background: #fafafa; resize: none; font-size: 12px; color: #555; outline: none; }
     .copy-code { width: 100%; background-color: #ea1d2c; color: white; border: none; border-radius: 50px; padding: 15px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 1rem; }
-    .copy-code:hover { background-color: #c41421; }
     #timer-box { font-size: 1.3rem; font-weight: bold; color: #ea1d2c; text-align: center; margin: 15px 0; }
 
     /* Carrinho */
@@ -31,6 +30,8 @@
     .triangle { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 8px solid #ea1d2c; transition: 0.2s; }
     .cart-body { margin-top: 10px; display: none; }
     .cart-body.active { display: block; }
+    
+    /* PRODUTO (Estilo corrigido) */
     .cart-product { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 10px; border: 1px solid #EA1D2C; border-radius: 5px; background: #fff; }
     .c-p-01 { display: flex; align-items: center; gap: 15px; }
     .c-p-01 .img { width: 50px; height: 50px; overflow: hidden; border-radius: 5px; }
@@ -60,7 +61,6 @@
     .s-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #fff; font-size: 1rem; color: #999; }
     .current-step { opacity: 1; color: #ea1d2c; }
     .current-step .s-circle { background: #ea1d2c; border-color: #ea1d2c; color: white; }
-    
     .hidden { display: none !important; }
     @media screen and (max-width: 768px) { .containerFinalizar { margin: 20px 10px; } }
   </style>
@@ -85,6 +85,7 @@
       
       <div id="detalhesProduto">
         <div class="payment">
+          
           <div id="timer-box">Expira em: <span id="time-display">--:--</span></div>
 
           <div id="active-payment-area">
@@ -101,7 +102,6 @@
           <div id="fallback-area" class="hidden" style="text-align: center; margin-top: 20px; padding: 20px; background: #fff5f5; border-radius: 10px; border: 1px dashed #ea1d2c;">
               <i class="fa fa-clock" style="font-size: 40px; color: #ea1d2c; margin-bottom: 10px;"></i>
               <h3 style="color: #ea1d2c; margin: 10px 0;">O código expirou</h3>
-              <p style="color:#666;">Gere um novo código para finalizar:</p>
               <button class="copy-code" style="background: #077c22;" onclick="renovarPix()">GERAR NOVO PIX</button>
           </div>
 
@@ -199,8 +199,8 @@
             
             renderInterface(currentPaymentData);
             
-            // Renderiza com os dados da API (contém os Bumps)
-            renderizarCarrinho(currentPaymentData);
+            // Renderiza o carrinho usando os dados salvos no localStorage (Snapshot fiel)
+            renderizarCarrinho();
             
         } catch (e) { console.error(e); }
     });
@@ -233,52 +233,29 @@
         startPolling(data.transactionId);
     }
 
-    // --- RENDERIZAÇÃO E CORREÇÃO DE VALORES (Divisão por 100) ---
-    function renderizarCarrinho(apiData) {
+    // --- FUNÇÃO CORRIGIDA: LÊ DO LOCALSTORAGE (SNAPSHOT) ---
+    function renderizarCarrinho() {
         const container = document.getElementById('cart-body');
         
-        // Prioriza a lista de itens que veio da API
-        let items = apiData.items || [];
+        // Lê os dados salvos pelo checkout antes de sair
+        let items = [];
+        try { 
+            items = JSON.parse(localStorage.getItem('lastOrderData')) || []; 
+        } catch(e){}
 
         if (items.length > 0) {
             container.innerHTML = '';
             items.forEach(item => {
-                // Remove prefixos internos
-                if(item.id && String(item.id).startsWith('bump-temp')) return;
-
-                // CORREÇÃO: A API retorna em CENTAVOS (Int). Dividir por 100.
-                let precoVal = 0;
-                if(item.unitPrice) {
-                    precoVal = item.unitPrice / 100;
-                } else if(item.preco) {
-                    // Fallback se vier string
-                    let p = String(item.preco).replace('R$','').trim();
-                    p = p.replace(/\./g, '').replace(',', '.');
-                    precoVal = parseFloat(p);
-                }
-
-                let nome = item.title || item.nome;
-                let qtd = item.quantity || item.quantidade || 1;
+                // Preço já foi salvo corretamente no checkout
+                let precoUnitario = parseFloat(item.unitPrice);
+                let qtd = parseInt(item.quantity);
+                let imgUrl = item.image || 'https://placehold.co/50';
                 
-                // Imagens dos Bumps
-                let imgUrl = 'https://placehold.co/50';
-                if(nome.includes("Brigadeiro")) {
-                    imgUrl = 'https://i.ibb.co/tpBcvjGd/1761874938117blob.webp';
-                } else if(nome.includes("Prestígio")) {
-                    imgUrl = 'https://i.ibb.co/twY42GMV/1761874938086blob.webp';
-                } else {
-                    // Tenta recuperar imagem do localStorage para itens normais
-                    try {
-                        const localCart = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
-                        const localItem = localCart.find(i => i.nome === nome);
-                        if(localItem && localItem.imagem) {
-                            imgUrl = localItem.imagem;
-                            if(imgUrl && !imgUrl.startsWith('http')) {
-                                let cleanPath = imgUrl.replace('./', '').replace('../', '');
-                                imgUrl = `../../../shop/681aaff4852ac923b1bcabfb/checkout/${cleanPath}`;
-                            }
-                        }
-                    } catch(e){}
+                // Ajuste de caminho da imagem se necessário
+                if(imgUrl && !imgUrl.startsWith('http')) {
+                    // Remove ponto inicial se houver
+                    let cleanPath = imgUrl.replace(/^\.\//, '');
+                    imgUrl = `../../../shop/681aaff4852ac923b1bcabfb/checkout/${cleanPath}`;
                 }
 
                 container.innerHTML += `
@@ -288,29 +265,27 @@
                                 <img src="${imgUrl}" onerror="this.src='https://placehold.co/50'">
                             </div>
                             <div class="info">
-                                <span class="product-name">${nome}</span>
+                                <span class="product-name">${item.title}</span>
                                 <div style="display:flex; justify-content:space-between; width:100%; margin-top:5px; color:#555; font-size:0.85rem;">
                                     <span>Quantidade: ${qtd}</span>
                                 </div>
                             </div>
                         </div>
                         <div style="font-weight: bold; color: #077c22; font-size: 0.95rem; align-self: center;">
-                            R$ ${(precoVal * qtd).toFixed(2).replace('.',',')}
+                            R$ ${(precoUnitario * qtd).toFixed(2).replace('.',',')}
                         </div>
                     </div>
                 `;
             });
         } else {
-            container.innerHTML = '<p style="text-align:center; padding:10px; color:#777;">Informações do pedido indisponíveis.</p>';
+            container.innerHTML = '<p style="text-align:center; padding:10px;">Informações do pedido indisponíveis.</p>';
         }
     }
 
     document.getElementById('saiba-mais-toggle').addEventListener('click', function() {
-        const content = document.getElementById('saiba-mais-content');
-        content.classList.toggle('active');
-        const arrow = this.querySelector('.arrow');
-        arrow.classList.toggle('fa-chevron-up');
-        arrow.classList.toggle('fa-chevron-down');
+        document.getElementById('saiba-mais-content').classList.toggle('active');
+        this.querySelector('.arrow').classList.toggle('fa-chevron-up');
+        this.querySelector('.arrow').classList.toggle('fa-chevron-down');
     });
 
     document.getElementById('cart-top').addEventListener('click', function() {
@@ -334,11 +309,10 @@
         el.select();
         document.execCommand('copy');
         const btn = document.getElementById('btn-copy');
-        const original = btn.innerText;
         btn.innerText = 'CÓDIGO COPIADO!';
         btn.style.backgroundColor = '#077c22';
         setTimeout(() => {
-            btn.innerText = original;
+            btn.innerText = 'COPIAR CÓDIGO PIX';
             btn.style.backgroundColor = '#ea1d2c';
         }, 2000);
     });
@@ -353,6 +327,7 @@
                 document.getElementById('active-payment-area').style.display = 'none';
                 document.getElementById('fallback-area').classList.remove('hidden');
                 document.getElementById('fallback-area').style.display = 'block';
+                document.getElementById('time-display').textContent = "EXPIRADO";
                 return;
             }
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
