@@ -2,6 +2,37 @@
 <html>
 
 <head>
+<!-- UTMify Pixel -->
+<script>
+  window.pixelId = "69618e480e598651b2b76386";
+  var a = document.createElement("script");
+  a.setAttribute("async", "");
+  a.setAttribute("defer", "");
+  a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+  document.head.appendChild(a);
+</script>
+
+<!-- UTMify UTMs Script -->
+<script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids async defer></script>
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '855094957234891');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
 
 
   
@@ -205,6 +236,21 @@
   <!-- SweetAlert2 -->
   <script src="../../../../npm/sweetalert2%4011"></script>
   <link rel="stylesheet" href="../../../../icon?family=Material+Icons">
+
+<!-- Evento ViewContent -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof fbq !== 'undefined') {
+    fbq('track', 'ViewContent', {
+      content_name: 'Burguer cheddar e bacon',
+      content_ids: ['687ea04cfcc65d99d7010c76'],
+      content_type: 'product',
+      value: 19.00,
+      currency: 'BRL'
+    });
+  }
+});
+</script>
 </head>
 
 <body>
