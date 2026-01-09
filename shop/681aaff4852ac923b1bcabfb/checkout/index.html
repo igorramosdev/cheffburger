@@ -109,6 +109,54 @@
     }
     
     .hidden { display: none !important; }
+
+    /* Estilos para a opção de entrega */
+    .freight {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .opt {
+      border-radius: 10px;
+      border: 2px solid #EA1D2C;
+      padding: 15px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .opt-1 {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .opt-1-1 {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .opt-1-1-span-1 {
+      font-weight: bold;
+    }
+
+    .opt-1-1-span-2 {
+      font-size: .8rem;
+    }
+
+    .opt input[type="radio"] {
+      accent-color: #EA1D2C;
+      width: 20px;
+      height: 20px;
+    }
+
+    .freight-free {
+      color: #077c22;
+      font-weight: bold;
+    }
   </style>
 </head>
 
@@ -163,6 +211,20 @@
                   <div class="input" style="flex:2"><label>Cidade</label><input type="text" id="city"></div>
                   <div class="input" style="flex:1"><label>Estado</label><input type="text" id="state"></div>
               </div>
+          </div>
+
+          <!-- Opção de Entrega - Aparece após validar CEP -->
+          <div class="freight hidden" id="freight-container">
+            <label for="0-opt" class="opt" id="0">
+              <div class="opt-1">
+                <input type="radio" id="0-opt" name="opt" amount="0" checked>
+                <div class="opt-1-1">
+                  <span class="opt-1-1-span-1">Entregar Agora</span>
+                  <span class="opt-1-1-span-2">20 a 30 min</span>
+                </div>
+              </div>
+              <span class="freight-free">Grátis</span>
+            </label>
           </div>
         </div>
 
@@ -352,6 +414,8 @@
                         document.getElementById('city').value = data.localidade;
                         document.getElementById('state').value = data.uf;
                         document.getElementById('number').focus();
+                        // Exibe a opção de entrega
+                        document.getElementById('freight-container').classList.remove('hidden');
                     }
                 } catch(e){}
             }
