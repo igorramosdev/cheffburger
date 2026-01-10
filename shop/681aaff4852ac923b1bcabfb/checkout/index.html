@@ -113,6 +113,7 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
         background: #fff;
     }
     .orderbump:hover { border-color: #EA1D2C; }
+    .orderbump.selected { border-color: #EA1D2C; background-color: #fff9f9; }
     .orderbump input[type="checkbox"] { accent-color: #EA1D2C; width: 20px; height: 20px; }
 
     /* Provas Sociais (Ícones Pequenos) */
@@ -400,6 +401,58 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
         const cpfFeedback = document.getElementById('cpf-feedback');
         
         // ============================================
+        // PERSISTÊNCIA DOS ORDER BUMPS NO LOCALSTORAGE
+        // ============================================
+        
+        const ORDER_BUMPS_KEY = 'orderBumpsSelecionados';
+        
+        /**
+         * Salva os order bumps selecionados no localStorage
+         */
+        function salvarOrderBumps() {
+            const bumpsSelecionados = [];
+            document.querySelectorAll('._orderbump').forEach(checkbox => {
+                if (checkbox.checked) {
+                    bumpsSelecionados.push(checkbox.id);
+                }
+            });
+            localStorage.setItem(ORDER_BUMPS_KEY, JSON.stringify(bumpsSelecionados));
+        }
+        
+        /**
+         * Restaura os order bumps selecionados do localStorage
+         */
+        function restaurarOrderBumps() {
+            try {
+                const bumpsSalvos = JSON.parse(localStorage.getItem(ORDER_BUMPS_KEY)) || [];
+                bumpsSalvos.forEach(bumpId => {
+                    const checkbox = document.getElementById(bumpId);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        // Adiciona classe visual ao label pai
+                        const label = checkbox.closest('.orderbump');
+                        if (label) {
+                            label.classList.add('selected');
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Erro ao restaurar order bumps:', e);
+            }
+        }
+        
+        /**
+         * Limpa os order bumps do localStorage (chamado após pagamento bem-sucedido)
+         */
+        function limparOrderBumps() {
+            localStorage.removeItem(ORDER_BUMPS_KEY);
+        }
+        
+        // ============================================
+        // FIM DA PERSISTÊNCIA DOS ORDER BUMPS
+        // ============================================
+        
+        // ============================================
         // VALIDADOR DE CPF ROBUSTO
         // ============================================
         
@@ -634,8 +687,25 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
             return total;
         }
 
+        // Configura eventos dos order bumps com persistência
         document.querySelectorAll('._orderbump').forEach(el => {
-            el.addEventListener('change', atualizarInterface);
+            el.addEventListener('change', function() {
+                // Atualiza classe visual do label
+                const label = this.closest('.orderbump');
+                if (label) {
+                    if (this.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                }
+                
+                // Salva no localStorage
+                salvarOrderBumps();
+                
+                // Atualiza a interface
+                atualizarInterface();
+            });
         });
 
         // 4. CEP
@@ -659,7 +729,8 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
             }
         });
 
-        // 5. Pagamento
+        // 5. Inicialização - Restaura order bumps e atualiza interface
+        restaurarOrderBumps();
         atualizarInterface();
         
         paymentButton.addEventListener('click', async () => {
@@ -736,6 +807,9 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
                 const result = await response.json();
 
                 if (response.ok && result.success) {
+                    // Limpa os order bumps do localStorage após pagamento bem-sucedido
+                    limparOrderBumps();
+                    
                     // CORREÇÃO: Adiciona os items (incluindo order bumps) ao result
                     result.items = itensPayload;
                     const dataStr = encodeURIComponent(JSON.stringify(result));
