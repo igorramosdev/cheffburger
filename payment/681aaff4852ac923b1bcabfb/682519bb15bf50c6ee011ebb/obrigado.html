@@ -1,21 +1,44 @@
-﻿
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y2N3W6KSXL"></script>
+    <!-- UTMify Pixel -->
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-Y2N3W6KSXL');
+      window.pixelId = "69618e480e598651b2b76386";
+      var a = document.createElement("script");
+      a.setAttribute("async", "");
+      a.setAttribute("defer", "");
+      a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+      document.head.appendChild(a);
     </script>
+
+    <!-- UTMify UTMs Script -->
+    <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids async defer></script>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '855094957234891');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
     <meta charset="UTF-8">
     <title>Pedido Confirmado! - Acompanhe a Entrega</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
@@ -305,8 +328,7 @@
 
             <!-- Etapa 1: Pagamento Confirmado -->
             <div id="step-1" class="step relative mb-12 completed">
-                <div
-                    class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white">
+                <div class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white">
                     <i class="fas fa-receipt"></i>
                 </div>
                 <div class="ml-10">
@@ -317,8 +339,7 @@
 
             <!-- Etapa 2: Confirmação da Loja -->
             <div id="step-2" class="step relative mb-12">
-                <div
-                    class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white bg-gray-300 text-white">
+                <div class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white bg-gray-300 text-white">
                     <i class="fas fa-store"></i>
                 </div>
                 <div class="ml-10">
@@ -329,8 +350,7 @@
 
             <!-- Etapa 3: Pedido Preparando -->
             <div id="step-3" class="step relative mb-12">
-                <div
-                    class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white bg-gray-300 text-white">
+                <div class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white bg-gray-300 text-white">
                     <i class="fas fa-utensils"></i>
                 </div>
                 <div class="ml-10">
@@ -340,8 +360,7 @@
 
             <!-- Etapa 4: Pedido a Caminho -->
             <div id="step-4" class="step relative">
-                <div
-                    class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white bg-gray-300 text-white">
+                <div class="icon absolute -left-1.5 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white bg-gray-300 text-white">
                     <i class="fas fa-motorcycle"></i>
                 </div>
                 <div class="ml-10">

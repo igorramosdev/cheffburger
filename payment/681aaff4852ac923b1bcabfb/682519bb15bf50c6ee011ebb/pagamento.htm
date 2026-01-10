@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <!-- UTMify Pixel -->
+    <script>
+      window.pixelId = "69618e480e598651b2b76386";
+      var a = document.createElement("script");
+      a.setAttribute("async", "");
+      a.setAttribute("defer", "");
+      a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+      document.head.appendChild(a);
+    </script>
+
+    <!-- UTMify UTMs Script -->
+    <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids async defer></script>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '855094957234891');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
+    <meta charset="UTF-8">
+    <title>Finalize seu Pedido - Taxa de Serviço</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .spinner {
+            border-top-color: #EA1D2C;
+        }
+
+        .copy-button {
+            background-color: #EA1D2C;
+            transition: background-color 0.3s;
+        }
+
+        .copy-button:hover {
+            background-color: #C81A26;
+        }
+
+        .copy-button.copied {
+            background-color: #077c22;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="container max-w-md w-full bg-white rounded-xl shadow-lg p-6 md:p-8">
+
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-red-600">Falta Pouco <span id="customer-name"></span>!</h1>
+        <h2 class="text-lg text-center text-gray-700 mb-6">Finalize o pagamento para liberar seu pedido.</h2>
+
+        <!-- Timer de expiração -->
+        <div id="timer-box" class="text-xl font-bold text-red-600 text-center mb-4">Expira em: <span id="time-display">--:--</span></div>
+
+        <!-- QR Code e Copia e Cola -->
+        <div id="pix-display">
+            <div id="pix-qrcode" class="flex justify-center items-center h-64 bg-gray-100 rounded-lg mb-4">
+                <div class="spinner animate-spin w-10 h-10 rounded-full border-4 border-gray-300 border-t-red-600">
+                </div>
+            </div>
+            <textarea id="pix-copy-paste" class="w-full p-3 border border-gray-300 rounded-md text-center bg-gray-50 text-sm" readonly="">Gerando código PIX...</textarea>
+            <button id="copy-pix-btn" class="copy-button w-full text-white font-bold py-3 px-4 rounded-full shadow-md text-base mt-2">
+                <i class="fas fa-copy mr-2"></i>Copiar Código
+            </button>
+        </div>
+
+        <!-- Área de fallback quando expira -->
+        <div id="fallback-area" class="hidden" style="text-align: center; margin-top: 20px; padding: 20px; background: #fff5f5; border-radius: 10px; border: 1px dashed #ea1d2c;">
+            <i class="fa fa-clock" style="font-size: 40px; color: #ea1d2c; margin-bottom: 10px;"></i>
+            <h3 style="color: #ea1d2c; margin: 10px 0;">O código expirou</h3>
+            <p style="color:#666;">Gere um novo código para finalizar:</p>
+            <button class="copy-button w-full text-white font-bold py-3 px-4 rounded-full shadow-md text-base mt-2" style="background: #077c22;" onclick="renovarPix()">GERAR NOVO PIX</button>
+        </div>
+
+        <!-- Checklist do Status -->
+        <div class="checklist my-6 space-y-3">
+            <div id="step-payment" class="item flex items-center text-yellow-600 font-semibold">
+                <i class="fas fa-exclamation-triangle mr-3"></i>
+                <span>Pagamento via PIX <strong class="ml-1">(Pendente)</strong></span>
+            </div>
+            <div id="step-delivery" class="item flex items-center text-gray-400">
+                <i class="fas fa-lock mr-3"></i>
+                <span>Pedido Liberado para Entrega <strong class="ml-1">(Aguardando)</strong></span>
+            </div>
+        </div>
+
+        <!-- Alerta -->
+        <div class="alert bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md">
+            <p class="font-bold">Atenção:</p>
+            <p class="text-sm">O não pagamento resultará no cancelamento automático do seu pedido.</p>
+        </div>
+
+        <footer class="text-center mt-6 text-sm text-gray-500">
+            © 2025 - Cheff Burguer
+        </footer>
+    </div>
+
+    <script>
+        // Variáveis globais para controle de intervalos e dados
+        let countdownInterval = null;
+        let checkInterval = null;
+        let currentPaymentData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const customerNameSpan = document.getElementById('customer-name');
+            const qrCodeContainer = document.getElementById('pix-qrcode');
+            const pixCodeInput = document.getElementById('pix-copy-paste');
+            const copyPixBtn = document.getElementById('copy-pix-btn');
+            const stepPayment = document.getElementById('step-payment');
+            const stepDelivery = document.getElementById('step-delivery');
+
+            // Recupera dados da URL (enviados pelo checkout)
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const dataStr = params.get('data');
+                
+                if (dataStr) {
+                    currentPaymentData = JSON.parse(decodeURIComponent(dataStr));
+                    console.log("📦 Dados recebidos via URL:", currentPaymentData);
+                    
+                    // Exibe o nome do cliente
+                    if (currentPaymentData.customer && currentPaymentData.customer.nome) {
+                        customerNameSpan.textContent = currentPaymentData.customer.nome.split(' ')[0];
+                    }
+                    
+                    // Renderiza a interface com os dados do Pix
+                    renderInterface(currentPaymentData);
+                } else {
+                    throw new Error("Dados de pagamento não encontrados na URL.");
+                }
+            } catch (e) {
+                console.error("🚨 Erro ao processar dados:", e);
+                qrCodeContainer.innerHTML = `<p class="text-red-600 font-semibold text-center p-4">Erro ao carregar dados do pagamento. Por favor, volte e tente novamente.</p>`;
+            }
+
+            // Evento de copiar código PIX
+            if (copyPixBtn) {
+                copyPixBtn.addEventListener('click', () => {
+                    const pixCode = pixCodeInput.value;
+                    
+                    // Usa a API moderna de clipboard (não seleciona o texto visualmente)
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(pixCode).then(() => {
+                            mostrarFeedbackCopia();
+                        }).catch(() => {
+                            // Fallback para método antigo se clipboard API falhar
+                            copiarMetodoAntigo(pixCodeInput);
+                        });
+                    } else {
+                        // Fallback para navegadores antigos
+                        copiarMetodoAntigo(pixCodeInput);
+                    }
+                });
+            }
+        });
+
+        // Função para renderizar a interface com os dados do Pix
+        function renderInterface(data) {
+            const qrCodeContainer = document.getElementById('pix-qrcode');
+            const pixCodeInput = document.getElementById('pix-copy-paste');
+            
+            // Preenche o código PIX
+            pixCodeInput.value = data.pix_copy_paste;
+            
+            // Limpa e renderiza o QR Code
+            qrCodeContainer.innerHTML = '';
+            
+            if (data.qr_code_base64 && data.qr_code_base64.length > 20) {
+                const img = document.createElement('img');
+                const prefix = data.qr_code_base64.startsWith('data:') ? '' : 'data:image/png;base64,';
+                img.src = prefix + data.qr_code_base64;
+                img.style.width = '100%';
+                img.style.maxWidth = '250px';
+                img.style.borderRadius = '10px';
+                qrCodeContainer.appendChild(img);
+            } else {
+                new QRCode(qrCodeContainer, { 
+                    text: data.pix_copy_paste, 
+                    width: 250, 
+                    height: 250 
+                });
+            }
+
+            // Configura o timer de expiração
+            const expirationSeconds = data.expiration_seconds || 1800;
+            const storageKey = `pix_expire_${data.transactionId}`;
+            let endTime = localStorage.getItem(storageKey);
+
+            if (!endTime) {
+                endTime = Date.now() + (expirationSeconds * 1000);
+                localStorage.setItem(storageKey, endTime);
+            }
+
+            startTimer(parseInt(endTime));
+            startPolling(data.transactionId);
+        }
+
+        // Função auxiliar para copiar com método antigo (fallback)
+        function copiarMetodoAntigo(el) {
+            el.select();
+            document.execCommand('copy');
+            // Remove a seleção do texto
+            window.getSelection().removeAllRanges();
+            el.blur();
+            mostrarFeedbackCopia();
+        }
+        
+        // Função para mostrar feedback visual de cópia
+        function mostrarFeedbackCopia() {
+            const btn = document.getElementById('copy-pix-btn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Copiado!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('copied');
+            }, 2000);
+        }
+
+        // Timer Persistente
+        function startTimer(endTime) {
+            clearInterval(countdownInterval);
+            
+            function update() {
+                const now = Date.now();
+                const distance = endTime - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('pix-display').style.display = 'none';
+                    document.getElementById('fallback-area').classList.remove('hidden');
+                    document.getElementById('fallback-area').style.display = 'block';
+                    document.getElementById('time-display').textContent = "EXPIRADO";
+                    return;
+                }
+
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('time-display').textContent = 
+                    `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            }
+
+            update(); 
+            countdownInterval = setInterval(update, 1000);
+        }
+
+        // Polling para verificar status do pagamento
+        function startPolling(id) {
+            if(!id) return;
+            clearInterval(checkInterval);
+            
+            checkInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/check-status?id=${id}`);
+                    const status = await res.json();
+                    
+                    if(status.paid) {
+                        clearInterval(checkInterval);
+                        clearInterval(countdownInterval);
+                        
+                        const stepPayment = document.getElementById('step-payment');
+                        const stepDelivery = document.getElementById('step-delivery');
+                        
+                        stepPayment.innerHTML = '<i class="fas fa-check-circle mr-3"></i><span>Pagamento via PIX <strong class="ml-1">(Concluído)</strong></span>';
+                        stepPayment.className = 'item flex items-center text-green-600 font-semibold';
+
+                        stepDelivery.innerHTML = '<i class="fas fa-box-open mr-3"></i><span>Pedido Liberado para Entrega <strong class="ml-1">(Liberado)</strong></span>';
+                        stepDelivery.className = 'item flex items-center text-green-600 font-semibold';
+                        
+                        // Evento Facebook Pixel - Purchase
+                        if (typeof fbq !== 'undefined') {
+                            let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+                            let total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+                            let ids = carrinho.map(item => item.id);
+                            fbq('track', 'Purchase', {
+                                content_ids: ids,
+                                content_type: 'product',
+                                value: total,
+                                currency: 'BRL',
+                                num_items: carrinho.length
+                            });
+                        }
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Pagamento Confirmado!',
+                            text: 'Seu pedido está sendo preparado.',
+                            showConfirmButton: true,
+                            confirmButtonColor: '#077c22',
+                            confirmButtonText: 'Acompanhar Entrega'
+                        }).then(() => {
+                            window.location.href = '/obrigado'; 
+                        });
+                    }
+                } catch(e) {
+                    console.error("Erro ao verificar status:", e);
+                }
+            }, 5000);
+        }
+
+        // Função para renovar o Pix quando expira
+        async function renovarPix() { 
+            if(currentPaymentData && currentPaymentData.transactionId) {
+                localStorage.removeItem(`pix_expire_${currentPaymentData.transactionId}`);
+            }
+            location.reload(); 
+        }
+    </script>
+</body>
+
+</html>
