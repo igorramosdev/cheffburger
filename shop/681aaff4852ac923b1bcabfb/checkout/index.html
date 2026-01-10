@@ -92,10 +92,10 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
 
     /* Produtos e Ofertas */
     .cart-product { 
-        display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
+        display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; 
         padding: 10px; border: 1px solid #eee; border-left: 4px solid #EA1D2C; border-radius: 5px; background: #fff;
     }
-    .c-p-01 { display: flex; align-items: center; gap: 15px; }
+    .c-p-01 { display: flex; align-items: flex-start; gap: 15px; }
     
     /* Imagens Produtos */
     .c-p-01 img { 
@@ -218,6 +218,18 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
     
     .cpf-feedback i {
       font-size: 0.9rem;
+    }
+
+    /* === ESTILOS PARA COMPLEMENTOS/SELEÇÕES === */
+    .selecoes-item {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+    
+    .selecoes-item div {
+      color: #888;
     }
   </style>
 </head>
@@ -532,6 +544,25 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
             return isNaN(num) ? 0 : num;
         }
 
+        // ============================================
+        // FUNÇÃO: GERAR HTML DOS COMPLEMENTOS/SELEÇÕES
+        // ============================================
+        function gerarHtmlSelecoes(selecoes) {
+            if (!selecoes || selecoes.length === 0) {
+                return '';
+            }
+            
+            let html = '<div class="selecoes-item">';
+            selecoes.forEach(sel => {
+                const precoStr = sel.preco > 0 ? ` +R$ ${sel.preco.toFixed(2).replace('.', ',')}` : '';
+                const qtdeStr = sel.qtde > 1 ? ` (${sel.qtde}x)` : '';
+                html += `<div>• ${sel.nome}${qtdeStr}${precoStr}</div>`;
+            });
+            html += '</div>';
+            
+            return html;
+        }
+
         // 3. RENDERIZAÇÃO E SOMA DE VALORES
         function atualizarInterface() {
             let carrinho = [];
@@ -559,12 +590,16 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
                     img = '../../../' + img.replace('./', '');
                 }
 
+                // Gerar HTML das seleções/complementos (Ketchup, Maionese, etc.)
+                const selecoesHtml = gerarHtmlSelecoes(item.selecoes);
+
                 checkoutCartItemsContainer.innerHTML += `
                     <div class="cart-product">
                         <div class="c-p-01">
                             <img src="${img}">
                             <div class="info">
                                 <span class="product-name">${item.nome}</span>
+                                ${selecoesHtml}
                                 <span style="font-size: 0.9em; color: #555;">${qtd} x R$ ${preco.toFixed(2).replace('.',',')}</span>
                             </div>
                         </div>
@@ -670,7 +705,8 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
                 nome: i.nome,
                 preco: parseFloat(String(i.preco).replace(',','.')),
                 quantidade: i.quantidade,
-                imagem: i.imagem || ''
+                imagem: i.imagem || '',
+                selecoes: i.selecoes || [] // Inclui as seleções/complementos no payload
             }));
 
             // CORREÇÃO: Adiciona order bumps com imagem ao payload
