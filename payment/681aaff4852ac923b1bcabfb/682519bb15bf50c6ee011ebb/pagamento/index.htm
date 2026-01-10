@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <script async="" src="../gtag/js-1?id=G-Y2N3W6KSXL"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-Y2N3W6KSXL');
+    </script>
+    <meta charset="UTF-8">
+    <title>Finalize seu Pedido - Taxa de Serviço</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../3.4.17"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="../css2-1?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../ajax/libs/font-awesome/6.0.0-beta3/css/all.min-1.css">
+    <script src="../ajax/libs/qrcodejs/1.0.0/qrcode.min-1.js"></script>
+
+    <!-- UTMify Scripts -->
+    <script src="../scripts/utms/latest-2.js" data-utmify-prevent-xcod-sck="" data-utmify-prevent-subids="" async="" defer=""></script>
+    <script>
+        window.googlePixelId = "6939e6eb93ad351dc55b7088";
+        var a = document.createElement("script");
+        a.setAttribute("async", "");
+        a.setAttribute("defer", "");
+        a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel-google.js");
+        document.head.appendChild(a);
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .spinner {
+            border-top-color: #EA1D2C;
+        }
+
+        .copy-button {
+            background-color: #EA1D2C;
+            transition: background-color 0.3s;
+        }
+
+        .copy-button:hover {
+            background-color: #C81A26;
+        }
+
+        .copy-button.copied {
+            background-color: #077c22;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="container max-w-md w-full bg-white rounded-xl shadow-lg p-6 md:p-8">
+
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-red-600">Falta Pouco <span id="customer-name"></span>!</h1>
+        <h2 class="text-lg text-center text-gray-700 mb-6">Finalize o pagamento para liberar seu pedido.</h2>
+
+        <!-- QR Code e Copia e Cola -->
+        <div id="pix-display">
+            <div id="pix-qrcode" class="flex justify-center items-center h-64 bg-gray-100 rounded-lg mb-4">
+                <div class="spinner animate-spin w-10 h-10 rounded-full border-4 border-gray-300 border-t-red-600">
+                </div>
+            </div>
+            <textarea id="pix-copy-paste" class="w-full p-3 border border-gray-300 rounded-md text-center bg-gray-50 text-sm" readonly="">Gerando código PIX...</textarea>
+            <button id="copy-pix-btn" class="copy-button w-full text-white font-bold py-3 px-4 rounded-full shadow-md text-base mt-2">
+                <i class="fas fa-copy mr-2"></i>Copiar Código
+            </button>
+        </div>
+
+        <!-- Checklist do Status -->
+        <div class="checklist my-6 space-y-3">
+            <div id="step-payment" class="item flex items-center text-yellow-600 font-semibold">
+                <i class="fas fa-exclamation-triangle mr-3"></i>
+                <span>Pagamento via PIX <strong class="ml-1">(Pendente)</strong></span>
+            </div>
+            <div id="step-delivery" class="item flex items-center text-gray-400">
+                <i class="fas fa-lock mr-3"></i>
+                <span>Pedido Liberado para Entrega <strong class="ml-1">(Aguardando)</strong></span>
+            </div>
+        </div>
+
+        <!-- Alerta -->
+        <div class="alert bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md">
+            <p class="font-bold">Atenção:</p>
+            <p class="text-sm">O não pagamento resultará no cancelamento automático do seu pedido.</p>
+        </div>
+
+        <footer class="text-center mt-6 text-sm text-gray-500">
+            © 2025 - Cheff Burguer
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const customerNameSpan = document.getElementById('customer-name');
+            const qrCodeContainer = document.getElementById('pix-qrcode');
+            const pixCodeInput = document.getElementById('pix-copy-paste');
+            const copyPixBtn = document.getElementById('copy-pix-btn');
+            const stepPayment = document.getElementById('step-payment');
+            const stepDelivery = document.getElementById('step-delivery');
+
+            let transactionId = null;
+            let verificationInterval = null;
+
+            // Verifica qual gateway foi usado no pagamento principal
+            const savedGateway = localStorage.getItem('payment_gateway') || 'skalepay';
+            console.log("🔍 Gateway salvo do pagamento principal:", savedGateway);
+
+            async function generateAndDisplayPix() {
+                try {
+                    console.log("🔄 Iniciando geração de PIX...");
+
+                    const dadosUsuarioString = localStorage.getItem('dadosUsuario') || '{}';
+                    const dadosUsuario = JSON.parse(dadosUsuarioString);
+                    console.log("📦 Dados do usuário recuperados:", dadosUsuario);
+
+                    const nomeClienteReal = dadosUsuario.nome || 'Cliente';
+                    const valorFixo = 9.90;
+
+                    const trackingData = JSON.parse(localStorage.getItem('tracking_data')) || {};
+                    console.log("📊 Tracking data recuperado:", trackingData);
+
+                    if (customerNameSpan) {
+                        customerNameSpan.textContent = nomeClienteReal.split(' ')[0];
+                    }
+
+                    const payload = {
+                        nome: nomeClienteReal,
+                        telefone: dadosUsuario.telefone || '11999999999',
+                        email: dadosUsuario.email || 'cliente@chefdolanche.delivery',
+                        cpf: dadosUsuario.cpf || null,
+                        cart: [{
+                            nome: "Taxa de Serviço",
+                            preco: valorFixo.toFixed(2),
+                            quantidade: 1
+                        }],
+                        ...trackingData
+                    };
+
+                    // Usa o mesmo gateway do pagamento principal
+                    const paymentEndpoint = savedGateway === 'mangofy' ? '/getPaymentMangofy.php' : '/getPayment.php';
+                    console.log("📤 Enviando payload para " + paymentEndpoint + ":", payload);
+
+                    const response = await fetch(paymentEndpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP ${response.status} - ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    console.log("✅ Resposta JSON do servidor:", result);
+
+                    if (result.success && (result.pixCode || result.data?.pix)) {
+                        transactionId = result.token || result.data?.payment_code || null;
+
+                        const pixCode =
+                            result.pixCode ||
+                            result.data?.pix?.pix_qrcode_text ||
+                            result.data?.pix?.copyPaste ||
+                            result.data?.pix?.emv ||
+                            null;
+
+                        if (!pixCode) {
+                            throw new Error("Payload PIX não encontrado no retorno da API.");
+                        }
+
+                        // Limpa container
+                        qrCodeContainer.innerHTML = '';
+
+                        // Tenta gerar QR Code
+                        try {
+                            new QRCode(qrCodeContainer, {
+                                text: String(pixCode).trim(),
+                                width: 256,
+                                height: 256,
+                                correctLevel: QRCode.CorrectLevel.L
+                            });
+                        } catch (err) {
+                            console.error("QR Code falhou:", err);
+                            qrCodeContainer.innerHTML = `
+                                <div style="text-align: center; padding: 20px; border: 2px dashed #EA1D2C; border-radius: 10px;">
+                                    <p style="color: #EA1D2C; font-weight: bold;">📱 Use o código PIX abaixo</p>
+                                </div>
+                            `;
+                        }
+
+                        // Preenche campo de copiar/colar
+                        pixCodeInput.value = String(pixCode).trim();
+
+                        // Inicia verificação
+                        startPaymentVerification();
+                    } else {
+                        throw new Error(result.message || "Não foi possível gerar o pagamento.");
+                    }
+                } catch (error) {
+                    console.error("🚨 Erro ao gerar PIX:", error);
+                    qrCodeContainer.innerHTML = `<p class="text-red-600 font-semibold">${error.message}</p>`;
+                }
+            }
+
+            function startPaymentVerification() {
+                console.log("🔎 Iniciando verificação de pagamento...");
+
+                if (verificationInterval) clearInterval(verificationInterval);
+
+                // Usa o endpoint de verificação correto baseado no gateway
+                const verifyEndpoint = savedGateway === 'mangofy'
+                    ? `/verifyPaymentMangofy.php?id=${transactionId}`
+                    : `/verifyPayment.php?id=${transactionId}`;
+
+                console.log("🔍 Endpoint de verificação:", verifyEndpoint);
+
+                verificationInterval = setInterval(async () => {
+                    if (!transactionId) {
+                        console.warn("⚠️ Nenhum transactionId disponível.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(verifyEndpoint);
+
+                        if (!response.ok) {
+                            throw new Error(`Erro HTTP ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        console.log("✅ Resposta verifyPayment:", result);
+
+                        if (result.success === true && (result.status === 'paid' || result.status === 'approved')) {
+                            clearInterval(verificationInterval);
+                            console.log("💰 Pagamento confirmado!");
+
+                            stepPayment.innerHTML = '<i class="fas fa-check-circle mr-3"></i><span>Pagamento via PIX <strong class="ml-1">(Concluído)</strong></span>';
+                            stepPayment.className = 'item flex items-center text-green-600 font-semibold';
+
+                            stepDelivery.innerHTML = '<i class="fas fa-box-open mr-3"></i><span>Pedido Liberado para Entrega <strong class="ml-1">(Liberado)</strong></span>';
+                            stepDelivery.className = 'item flex items-center text-green-600 font-semibold';
+
+                            // Lógica UTMIFY removida do frontend para evitar duplicidade
+                            // O webhook do gateway (SkalePay/Mangofy) já envia para UTMify
+                            // Isso evita notificações duplicadas de vendas
+
+                            // Limpa o gateway salvo após completar todo o fluxo
+                            localStorage.removeItem('payment_gateway');
+
+                            window.location.href = '/obrigado';
+                        }
+                    } catch (error) {
+                        console.error('🚨 Erro ao verificar pagamento:', error);
+                    }
+                }, 5000);
+            }
+
+            if (copyPixBtn) {
+                copyPixBtn.addEventListener('click', () => {
+                    try {
+                        pixCodeInput.select();
+                        document.execCommand('copy');
+                        console.log("📋 PIX copiado para área de transferência.");
+
+                        copyPixBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Copiado!';
+                        copyPixBtn.classList.add('copied');
+                        setTimeout(() => {
+                            copyPixBtn.innerHTML = '<i class="fas fa-copy mr-2"></i>Copiar Código';
+                            copyPixBtn.classList.remove('copied');
+                        }, 2000);
+                    } catch (error) {
+                        console.error("🚨 Erro ao copiar PIX:", error);
+                    }
+                });
+            }
+
+            generateAndDisplayPix();
+        });
+    </script>
+</body>
+
+</html>
