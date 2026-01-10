@@ -135,48 +135,87 @@
             const stepPayment = document.getElementById('step-payment');
             const stepDelivery = document.getElementById('step-delivery');
 
-            // Recupera dados da URL (enviados pelo checkout)
-            try {
-                const params = new URLSearchParams(window.location.search);
-                const dataStr = params.get('data');
-                
-                if (dataStr) {
-                    currentPaymentData = JSON.parse(decodeURIComponent(dataStr));
-                    console.log("📦 Dados recebidos via URL:", currentPaymentData);
-                    
-                    // Exibe o nome do cliente
-                    if (currentPaymentData.customer && currentPaymentData.customer.nome) {
-                        customerNameSpan.textContent = currentPaymentData.customer.nome.split(' ')[0];
-                    }
-                    
-                    // Renderiza a interface com os dados do Pix
-                    renderInterface(currentPaymentData);
-                } else {
-                    throw new Error("Dados de pagamento não encontrados na URL.");
-                }
-            } catch (e) {
-                console.error("🚨 Erro ao processar dados:", e);
-                qrCodeContainer.innerHTML = `<p class="text-red-600 font-semibold text-center p-4">Erro ao carregar dados do pagamento. Por favor, volte e tente novamente.</p>`;
-            }
+            // Gera o Pix automaticamente ao carregar a página
+            generateAndDisplayPix();
 
             // Evento de copiar código PIX
             if (copyPixBtn) {
                 copyPixBtn.addEventListener('click', () => {
                     const pixCode = pixCodeInput.value;
                     
-                    // Usa a API moderna de clipboard (não seleciona o texto visualmente)
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(pixCode).then(() => {
                             mostrarFeedbackCopia();
                         }).catch(() => {
-                            // Fallback para método antigo se clipboard API falhar
                             copiarMetodoAntigo(pixCodeInput);
                         });
                     } else {
-                        // Fallback para navegadores antigos
                         copiarMetodoAntigo(pixCodeInput);
                     }
                 });
+            }
+
+            async function generateAndDisplayPix() {
+                try {
+                    console.log("🔄 Iniciando geração de PIX via /api/generate-pix...");
+
+                    // Recupera dados do usuário do localStorage
+                    const dadosUsuarioString = localStorage.getItem('dadosUsuario') || '{}';
+                    const dadosUsuario = JSON.parse(dadosUsuarioString);
+                    console.log("📦 Dados do usuário recuperados:", dadosUsuario);
+
+                    const nomeClienteReal = dadosUsuario.nome || 'Cliente';
+                    const valorFixo = 9.90;
+
+                    if (customerNameSpan) {
+                        customerNameSpan.textContent = nomeClienteReal.split(' ')[0];
+                    }
+
+                    // Payload no formato esperado pela API /api/generate-pix
+                    const payload = {
+                        customer: {
+                            nome: nomeClienteReal,
+                            cpf: dadosUsuario.cpf || '00000000000',
+                            telefone: dadosUsuario.telefone || '11999999999',
+                            email: dadosUsuario.email || 'cliente@cheffburguer.delivery'
+                        },
+                        total: valorFixo,
+                        items: [{
+                            nome: "Taxa de Serviço",
+                            preco: valorFixo,
+                            quantidade: 1,
+                            imagem: ''
+                        }]
+                    };
+
+                    console.log("📤 Enviando payload para /api/generate-pix:", payload);
+
+                    const response = await fetch("/api/generate-pix", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP ${response.status} - ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    console.log("✅ Resposta JSON do servidor:", result);
+
+                    if (result.success) {
+                        // Salva os dados do pagamento
+                        currentPaymentData = result;
+                        
+                        // Renderiza a interface
+                        renderInterface(result);
+                    } else {
+                        throw new Error(result.message || "Não foi possível gerar o pagamento.");
+                    }
+                } catch (error) {
+                    console.error("🚨 Erro ao gerar PIX:", error);
+                    qrCodeContainer.innerHTML = `<p class="text-red-600 font-semibold text-center p-4">${error.message}</p>`;
+                }
             }
         });
 
@@ -225,7 +264,6 @@
         function copiarMetodoAntigo(el) {
             el.select();
             document.execCommand('copy');
-            // Remove a seleção do texto
             window.getSelection().removeAllRanges();
             el.blur();
             mostrarFeedbackCopia();
@@ -296,15 +334,12 @@
                         
                         // Evento Facebook Pixel - Purchase
                         if (typeof fbq !== 'undefined') {
-                            let carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
-                            let total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-                            let ids = carrinho.map(item => item.id);
                             fbq('track', 'Purchase', {
-                                content_ids: ids,
+                                content_ids: ['taxa-servico'],
                                 content_type: 'product',
-                                value: total,
+                                value: 9.90,
                                 currency: 'BRL',
-                                num_items: carrinho.length
+                                num_items: 1
                             });
                         }
                         
@@ -316,7 +351,7 @@
                             confirmButtonColor: '#077c22',
                             confirmButtonText: 'Acompanhar Entrega'
                         }).then(() => {
-                            window.location.href = 'obrigado/obrigado.html'; 
+                            window.location.href = '/obrigado'; 
                         });
                     }
                 } catch(e) {
