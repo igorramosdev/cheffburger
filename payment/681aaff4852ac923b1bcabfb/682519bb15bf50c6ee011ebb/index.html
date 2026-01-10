@@ -172,7 +172,7 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
   <div class="payment-area">
     <div class="container containerFinalizar">
       <h2 style="width: 100%; text-align: center; margin-bottom: 5px;" id="main-title">Falta pouco!</h2>
-      <h3 style="width: 100%; text-align: center; font-size: 1rem; color: #666; font-weight: normal; margin-top: 0;">
+      <h3 style="width: 100%; text-align: center; font-size: 1rem; color: #403f3f; font-weight: bold; margin-top: 0;">
         Escaneie o QR CODE<br>ou copie o código
       </h3>
       
@@ -275,8 +275,12 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
   </div>
 
   <footer>
-    <b>Cheff Burguer</b><br>
-    <small>CNPJ: 37.XXX.253/0001-51</small>
+    <b style="display:block; margin-bottom:5px;">Cheff Burguer</b>
+    <span style="font-size: 0.9rem;">CNPJ: 37.XXX.253/0001-51</span>
+    <div style="margin-top: 15px;">
+      <a href="../../../shop/681aaff4852ac923b1bcabfb/terms.html" style="color: white; text-decoration: underline;">Termos de Uso</a> | 
+      <a href="../../../shop/681aaff4852ac923b1bcabfb/terms.html" style="color: white; text-decoration: underline;">Política de Privacidade</a>
+    </div>
   </footer>
 
   <script>
@@ -465,20 +469,46 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
         });
     });
 
-    // Copiar
+    // Copiar - CORRIGIDO: Não mantém texto selecionado após copiar
     document.getElementById('btn-copy').addEventListener('click', () => {
         const el = document.getElementById('pix-text');
+        const pixCode = el.value;
+        
+        // Usa a API moderna de clipboard (não seleciona o texto visualmente)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(pixCode).then(() => {
+                mostrarFeedbackCopia();
+            }).catch(() => {
+                // Fallback para método antigo se clipboard API falhar
+                copiarMetodoAntigo(el);
+            });
+        } else {
+            // Fallback para navegadores antigos
+            copiarMetodoAntigo(el);
+        }
+    });
+    
+    // Função auxiliar para copiar com método antigo (fallback)
+    function copiarMetodoAntigo(el) {
         el.select();
         document.execCommand('copy');
+        // Remove a seleção do texto
+        window.getSelection().removeAllRanges();
+        el.blur();
+        mostrarFeedbackCopia();
+    }
+    
+    // Função para mostrar feedback visual de cópia
+    function mostrarFeedbackCopia() {
         const btn = document.getElementById('btn-copy');
-        const original = btn.innerText;
-        btn.innerText = 'CÓDIGO COPIADO!';
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-check"></i> CÓDIGO COPIADO!';
         btn.style.backgroundColor = '#077c22';
         setTimeout(() => {
-            btn.innerText = original;
+            btn.innerHTML = originalHtml;
             btn.style.backgroundColor = '#ea1d2c';
         }, 2000);
-    });
+    }
 
     // Timer Persistente
     function startTimer(endTime) {
