@@ -84,7 +84,7 @@
                 <div class="spinner animate-spin w-10 h-10 rounded-full border-4 border-gray-300 border-t-red-600">
                 </div>
             </div>
-            <textarea id="pix-copy-paste" class="w-full p-3 border border-gray-300 rounded-md text-center bg-gray-50 text-sm" readonly="">Carregando código PIX...</textarea>
+            <textarea id="pix-copy-paste" class="w-full p-3 border border-gray-300 rounded-md text-center bg-gray-50 text-sm" readonly="">Gerando código PIX...</textarea>
             <button id="copy-pix-btn" class="copy-button w-full text-white font-bold py-3 px-4 rounded-full shadow-md text-base mt-2">
                 <i class="fas fa-copy mr-2"></i>Copiar Código
             </button>
@@ -126,6 +126,9 @@
         let countdownInterval = null;
         let checkInterval = null;
         let currentPaymentData = null;
+        
+        // VALOR FIXO DA TAXA DE SERVIÇO
+        const VALOR_TAXA_SERVICO = 9.90;
 
         document.addEventListener('DOMContentLoaded', () => {
             const customerNameSpan = document.getElementById('customer-name');
@@ -134,36 +137,30 @@
             const copyPixBtn = document.getElementById('copy-pix-btn');
 
             // ============================================
-            // LÓGICA CORRIGIDA: Recebe dados via URL (como referencia-pagamento.html)
+            // LÓGICA: Recebe dados do cliente via URL e gera NOVO Pix com valor fixo
             // ============================================
             const urlParams = new URLSearchParams(window.location.search);
             const dataParam = urlParams.get('data');
             
+            let customerData = null;
+            
             if (dataParam) {
-                // Dados recebidos via URL (fluxo correto vindo do checkout)
+                // Dados do cliente recebidos via URL (vindos do checkout)
                 try {
-                    currentPaymentData = JSON.parse(decodeURIComponent(dataParam));
-                    console.log("✅ Dados recebidos via URL:", currentPaymentData);
+                    const urlData = JSON.parse(decodeURIComponent(dataParam));
+                    console.log("📦 Dados recebidos via URL:", urlData);
                     
-                    // Atualiza o nome do cliente
-                    if (currentPaymentData.customer?.nome) {
-                        const primeiroNome = currentPaymentData.customer.nome.split(" ")[0];
-                        customerNameSpan.textContent = primeiroNome;
+                    // Extrai apenas os dados do cliente para gerar NOVO Pix
+                    if (urlData.customer) {
+                        customerData = urlData.customer;
                     }
-                    
-                    // Renderiza a interface com os dados do Pix
-                    renderInterface(currentPaymentData);
-                    
                 } catch (e) {
                     console.error("🚨 Erro ao processar dados da URL:", e);
-                    qrCodeContainer.innerHTML = `<p class="text-red-600 font-semibold text-center p-4">Erro ao carregar dados do pagamento.</p>`;
                 }
-            } else {
-                // Fallback: Se não há dados na URL, tenta gerar via API
-                // (mantém compatibilidade com fluxo antigo, mas com dados do localStorage)
-                console.log("⚠️ Dados não encontrados na URL, tentando gerar via API...");
-                generateAndDisplayPix();
             }
+            
+            // Gera o Pix com valor fixo de R$ 9,90
+            generateAndDisplayPix(customerData);
 
             // Evento de copiar código PIX
             if (copyPixBtn) {
@@ -183,70 +180,63 @@
             }
 
             // ============================================
-            // FUNÇÃO FALLBACK: Gera Pix via API (caso não venha da URL)
-            // Usa dados do localStorage salvos pelo checkout
+            // FUNÇÃO: Gera NOVO Pix com valor fixo de R$ 9,90
             // ============================================
-            async function generateAndDisplayPix() {
+            async function generateAndDisplayPix(customerFromUrl) {
                 try {
-                    console.log("🔄 Iniciando geração de PIX via /api/generate-pix...");
+                    console.log("🔄 Iniciando geração de PIX com valor fixo de R$ " + VALOR_TAXA_SERVICO);
 
-                    // Recupera dados do usuário do localStorage (salvos pelo checkout)
-                    const dadosUsuarioString = localStorage.getItem('dadosUsuario') || '{}';
-                    const dadosUsuario = JSON.parse(dadosUsuarioString);
-                    console.log("📦 Dados do usuário recuperados:", dadosUsuario);
+                    // Usa dados do cliente da URL ou tenta recuperar do localStorage
+                    let customer = customerFromUrl;
+                    
+                    if (!customer || !customer.cpf) {
+                        // Fallback: tenta recuperar do localStorage
+                        const dadosUsuarioString = localStorage.getItem('dadosUsuario') || '{}';
+                        const dadosUsuario = JSON.parse(dadosUsuarioString);
+                        console.log("📦 Dados do usuário do localStorage:", dadosUsuario);
+                        
+                        if (dadosUsuario.nome && dadosUsuario.cpf) {
+                            customer = {
+                                nome: dadosUsuario.nome,
+                                cpf: dadosUsuario.cpf,
+                                telefone: dadosUsuario.telefone || '',
+                                email: dadosUsuario.email || 'cliente@email.com'
+                            };
+                        }
+                    }
 
-                    // Verifica se há dados válidos do usuário
-                    if (!dadosUsuario.nome || !dadosUsuario.cpf || dadosUsuario.cpf === '00000000000') {
+                    // Verifica se há dados válidos do cliente
+                    if (!customer || !customer.cpf || customer.cpf === '00000000000') {
                         throw new Error("Dados do cliente não encontrados. Por favor, volte ao checkout e preencha seus dados.");
                     }
 
-                    // Recupera o carrinho do localStorage
-                    let carrinho = [];
-                    try {
-                        carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
-                    } catch(e) {
-                        console.warn("Carrinho não encontrado no localStorage");
-                    }
+                    // Limpa o CPF (remove pontos e traços)
+                    const cpfLimpo = customer.cpf.replace(/\D/g, '');
+                    
+                    // Limpa o telefone (remove caracteres especiais)
+                    const telefoneLimpo = (customer.telefone || '').replace(/\D/g, '');
 
-                    // Calcula o total do carrinho ou usa valor fixo
-                    let totalCalculado = 9.90; // Valor padrão da taxa de serviço
-                    let itensPayload = [{
-                        nome: "Taxa de Serviço",
-                        preco: 9.90,
-                        quantidade: 1,
-                        imagem: ''
-                    }];
-
-                    if (carrinho.length > 0) {
-                        totalCalculado = carrinho.reduce((sum, item) => {
-                            const preco = parseFloat(String(item.preco).replace(',', '.')) || 0;
-                            return sum + (preco * (item.quantidade || 1));
-                        }, 0);
-                        
-                        itensPayload = carrinho.map(item => ({
-                            nome: item.nome,
-                            preco: parseFloat(String(item.preco).replace(',', '.')) || 0,
-                            quantidade: item.quantidade || 1,
-                            imagem: item.imagem || ''
-                        }));
-                    }
-
-                    const nomeClienteReal = dadosUsuario.nome || 'Cliente';
+                    const nomeCliente = customer.nome || 'Cliente';
 
                     if (customerNameSpan) {
-                        customerNameSpan.textContent = nomeClienteReal.split(' ')[0];
+                        customerNameSpan.textContent = nomeCliente.split(' ')[0];
                     }
 
-                    // Payload no formato esperado pela API /api/generate-pix
+                    // Payload com valor FIXO de R$ 9,90 (Taxa de Serviço)
                     const payload = {
                         customer: {
-                            nome: nomeClienteReal,
-                            cpf: dadosUsuario.cpf,
-                            telefone: dadosUsuario.telefone || '',
-                            email: dadosUsuario.email || 'cliente@email.com'
+                            nome: nomeCliente,
+                            cpf: cpfLimpo,
+                            telefone: telefoneLimpo,
+                            email: customer.email || 'cliente@email.com'
                         },
-                        total: totalCalculado,
-                        items: itensPayload
+                        total: VALOR_TAXA_SERVICO,
+                        items: [{
+                            nome: "Taxa de Serviço",
+                            preco: VALOR_TAXA_SERVICO,
+                            quantidade: 1,
+                            imagem: ''
+                        }]
                     };
 
                     console.log("📤 Enviando payload para /api/generate-pix:", payload);
@@ -400,7 +390,7 @@
                             fbq('track', 'Purchase', {
                                 content_ids: ['taxa-servico'],
                                 content_type: 'product',
-                                value: 9.90,
+                                value: VALOR_TAXA_SERVICO,
                                 currency: 'BRL',
                                 num_items: 1
                             });
@@ -414,7 +404,7 @@
                             confirmButtonColor: '#077c22',
                             confirmButtonText: 'Acompanhar Entrega'
                         }).then(() => {
-                            window.location.href = '/payment/681aaff4852ac923b1bcabfb/682519bb15bf50c6ee011ebb/obrigado/'; 
+                            window.location.href = '/obrigado'; 
                         });
                     }
                 } catch(e) {
