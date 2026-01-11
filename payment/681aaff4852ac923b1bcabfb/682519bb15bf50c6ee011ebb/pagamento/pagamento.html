@@ -84,7 +84,7 @@
                 <div class="spinner animate-spin w-10 h-10 rounded-full border-4 border-gray-300 border-t-red-600">
                 </div>
             </div>
-            <textarea id="pix-copy-paste" class="w-full p-3 border border-gray-300 rounded-md text-center bg-gray-50 text-sm" readonly="">Gerando código PIX...</textarea>
+            <textarea id="pix-copy-paste" class="w-full p-3 border border-gray-300 rounded-md text-center bg-gray-50 text-sm" readonly="">Carregando código PIX...</textarea>
             <button id="copy-pix-btn" class="copy-button w-full text-white font-bold py-3 px-4 rounded-full shadow-md text-base mt-2">
                 <i class="fas fa-copy mr-2"></i>Copiar Código
             </button>
@@ -132,11 +132,38 @@
             const qrCodeContainer = document.getElementById('pix-qrcode');
             const pixCodeInput = document.getElementById('pix-copy-paste');
             const copyPixBtn = document.getElementById('copy-pix-btn');
-            const stepPayment = document.getElementById('step-payment');
-            const stepDelivery = document.getElementById('step-delivery');
 
-            // Gera o Pix automaticamente ao carregar a página
-            generateAndDisplayPix();
+            // ============================================
+            // LÓGICA CORRIGIDA: Recebe dados via URL (como referencia-pagamento.html)
+            // ============================================
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataParam = urlParams.get('data');
+            
+            if (dataParam) {
+                // Dados recebidos via URL (fluxo correto vindo do checkout)
+                try {
+                    currentPaymentData = JSON.parse(decodeURIComponent(dataParam));
+                    console.log("✅ Dados recebidos via URL:", currentPaymentData);
+                    
+                    // Atualiza o nome do cliente
+                    if (currentPaymentData.customer?.nome) {
+                        const primeiroNome = currentPaymentData.customer.nome.split(" ")[0];
+                        customerNameSpan.textContent = primeiroNome;
+                    }
+                    
+                    // Renderiza a interface com os dados do Pix
+                    renderInterface(currentPaymentData);
+                    
+                } catch (e) {
+                    console.error("🚨 Erro ao processar dados da URL:", e);
+                    qrCodeContainer.innerHTML = `<p class="text-red-600 font-semibold text-center p-4">Erro ao carregar dados do pagamento.</p>`;
+                }
+            } else {
+                // Fallback: Se não há dados na URL, tenta gerar via API
+                // (mantém compatibilidade com fluxo antigo, mas com dados do localStorage)
+                console.log("⚠️ Dados não encontrados na URL, tentando gerar via API...");
+                generateAndDisplayPix();
+            }
 
             // Evento de copiar código PIX
             if (copyPixBtn) {
@@ -155,17 +182,56 @@
                 });
             }
 
+            // ============================================
+            // FUNÇÃO FALLBACK: Gera Pix via API (caso não venha da URL)
+            // Usa dados do localStorage salvos pelo checkout
+            // ============================================
             async function generateAndDisplayPix() {
                 try {
                     console.log("🔄 Iniciando geração de PIX via /api/generate-pix...");
 
-                    // Recupera dados do usuário do localStorage
+                    // Recupera dados do usuário do localStorage (salvos pelo checkout)
                     const dadosUsuarioString = localStorage.getItem('dadosUsuario') || '{}';
                     const dadosUsuario = JSON.parse(dadosUsuarioString);
                     console.log("📦 Dados do usuário recuperados:", dadosUsuario);
 
+                    // Verifica se há dados válidos do usuário
+                    if (!dadosUsuario.nome || !dadosUsuario.cpf || dadosUsuario.cpf === '00000000000') {
+                        throw new Error("Dados do cliente não encontrados. Por favor, volte ao checkout e preencha seus dados.");
+                    }
+
+                    // Recupera o carrinho do localStorage
+                    let carrinho = [];
+                    try {
+                        carrinho = JSON.parse(localStorage.getItem('meuCarrinho')) || [];
+                    } catch(e) {
+                        console.warn("Carrinho não encontrado no localStorage");
+                    }
+
+                    // Calcula o total do carrinho ou usa valor fixo
+                    let totalCalculado = 9.90; // Valor padrão da taxa de serviço
+                    let itensPayload = [{
+                        nome: "Taxa de Serviço",
+                        preco: 9.90,
+                        quantidade: 1,
+                        imagem: ''
+                    }];
+
+                    if (carrinho.length > 0) {
+                        totalCalculado = carrinho.reduce((sum, item) => {
+                            const preco = parseFloat(String(item.preco).replace(',', '.')) || 0;
+                            return sum + (preco * (item.quantidade || 1));
+                        }, 0);
+                        
+                        itensPayload = carrinho.map(item => ({
+                            nome: item.nome,
+                            preco: parseFloat(String(item.preco).replace(',', '.')) || 0,
+                            quantidade: item.quantidade || 1,
+                            imagem: item.imagem || ''
+                        }));
+                    }
+
                     const nomeClienteReal = dadosUsuario.nome || 'Cliente';
-                    const valorFixo = 9.90;
 
                     if (customerNameSpan) {
                         customerNameSpan.textContent = nomeClienteReal.split(' ')[0];
@@ -175,17 +241,12 @@
                     const payload = {
                         customer: {
                             nome: nomeClienteReal,
-                            cpf: dadosUsuario.cpf || '00000000000',
-                            telefone: dadosUsuario.telefone || '11999999999',
-                            email: dadosUsuario.email || 'cliente@cheffburguer.delivery'
+                            cpf: dadosUsuario.cpf,
+                            telefone: dadosUsuario.telefone || '',
+                            email: dadosUsuario.email || 'cliente@email.com'
                         },
-                        total: valorFixo,
-                        items: [{
-                            nome: "Taxa de Serviço",
-                            preco: valorFixo,
-                            quantidade: 1,
-                            imagem: ''
-                        }]
+                        total: totalCalculado,
+                        items: itensPayload
                     };
 
                     console.log("📤 Enviando payload para /api/generate-pix:", payload);
@@ -196,16 +257,17 @@
                         body: JSON.stringify(payload)
                     });
 
-                    if (!response.ok) {
-                        throw new Error(`Erro HTTP ${response.status} - ${response.statusText}`);
-                    }
-
                     const result = await response.json();
-                    console.log("✅ Resposta JSON do servidor:", result);
+                    console.log("📥 Resposta do servidor:", result);
+
+                    if (!response.ok) {
+                        throw new Error(result.message || `Erro HTTP ${response.status}`);
+                    }
 
                     if (result.success) {
                         // Salva os dados do pagamento
                         currentPaymentData = result;
+                        currentPaymentData.customer = payload.customer;
                         
                         // Renderiza a interface
                         renderInterface(result);
@@ -215,6 +277,7 @@
                 } catch (error) {
                     console.error("🚨 Erro ao gerar PIX:", error);
                     qrCodeContainer.innerHTML = `<p class="text-red-600 font-semibold text-center p-4">${error.message}</p>`;
+                    pixCodeInput.value = "Erro ao gerar código PIX";
                 }
             }
         });
