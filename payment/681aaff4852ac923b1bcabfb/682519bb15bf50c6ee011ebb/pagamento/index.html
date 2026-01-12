@@ -129,6 +129,46 @@
         
         // VALOR FIXO DA TAXA DE SERVIÇO
         const VALOR_TAXA_SERVICO = 9.90;
+        
+        // ============================================
+        // CAPTURA DE PARÂMETROS DE RASTREAMENTO (UTMify)
+        // ============================================
+        function getTrackingParams() {
+            try {
+                // Tenta obter do localStorage da UTMify
+                const utmifyData = localStorage.getItem('utmify_tracking_data');
+                if (utmifyData) {
+                    const parsed = JSON.parse(utmifyData);
+                    return {
+                        src: parsed.src || null,
+                        sck: parsed.sck || null,
+                        utm_source: parsed.utm_source || null,
+                        utm_campaign: parsed.utm_campaign || null,
+                        utm_medium: parsed.utm_medium || null,
+                        utm_content: parsed.utm_content || null,
+                        utm_term: parsed.utm_term || null
+                    };
+                }
+                
+                // Fallback: tenta obter da URL
+                const urlParams = new URLSearchParams(window.location.search);
+                return {
+                    src: urlParams.get('src') || null,
+                    sck: urlParams.get('sck') || null,
+                    utm_source: urlParams.get('utm_source') || null,
+                    utm_campaign: urlParams.get('utm_campaign') || null,
+                    utm_medium: urlParams.get('utm_medium') || null,
+                    utm_content: urlParams.get('utm_content') || null,
+                    utm_term: urlParams.get('utm_term') || null
+                };
+            } catch (e) {
+                console.error('Erro ao obter parâmetros de rastreamento:', e);
+                return {};
+            }
+        }
+        
+        const trackingParams = getTrackingParams();
+        console.log('📊 Parâmetros de rastreamento (pagamento):', trackingParams);
 
         document.addEventListener('DOMContentLoaded', () => {
             const customerNameSpan = document.getElementById('customer-name');
@@ -223,6 +263,7 @@
                     }
 
                     // Payload com valor FIXO de R$ 9,90 (Taxa de Serviço)
+                    // Inclui parâmetros de rastreamento para envio à UTMify
                     const payload = {
                         customer: {
                             nome: nomeCliente,
@@ -236,7 +277,8 @@
                             preco: VALOR_TAXA_SERVICO,
                             quantidade: 1,
                             imagem: ''
-                        }]
+                        }],
+                        trackingParams: trackingParams // Parâmetros UTM para rastreamento
                     };
 
                     console.log("📤 Enviando payload para /api/generate-pix:", payload);

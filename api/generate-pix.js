@@ -5,6 +5,13 @@ const RAW_KEY = process.env.OTIMIZE_SECRET_KEY || '';
 const SECRET_KEY = RAW_KEY.trim(); 
 const API_URL = 'https://api.otimizepagamentos.com/v1/transactions';
 
+// ============================================
+// CONFIGURAÇÃO DO WEBHOOK
+// ============================================
+// IMPORTANTE: Substitua pela URL real do seu webhook em produção
+// Esta URL será chamada pela Otimize quando o status do pagamento mudar
+const WEBHOOK_URL = process.env.WEBHOOK_URL || 'https://cheffburguer.shop/api/webhook-otimize';
+
 module.exports = async (req, res) => {
     // Configurações de Segurança (CORS)
     res.setHeader('Access-Control-Allow-Credentials', true);
@@ -18,7 +25,15 @@ module.exports = async (req, res) => {
     if (!SECRET_KEY) return res.status(500).json({ success: false, message: "Erro de configuração do servidor." });
 
     try {
-        const { customer, total, items } = req.body;
+        // ============================================
+        // RECEBE DADOS DO FRONTEND
+        // ============================================
+        const { customer, total, items, trackingParams } = req.body;
+
+        // Log dos parâmetros de rastreamento recebidos
+        if (trackingParams) {
+            console.log("📊 Parâmetros de rastreamento recebidos:", trackingParams);
+        }
 
         // 1. Limpeza de Dados (Remove pontos e traços)
         const cleanCPF = customer?.cpf ? customer.cpf.replace(/\D/g, '') : '';
@@ -41,12 +56,42 @@ module.exports = async (req, res) => {
         // 4. Autenticação na Otimize
         const authString = Buffer.from(`${SECRET_KEY}:x`).toString('base64');
 
+        // ============================================
+        // MONTA O PAYLOAD COM METADADOS DE RASTREAMENTO
+        // ============================================
+        // Os metadados serão retornados pelo webhook da Otimize,
+        // permitindo associar a venda aos parâmetros UTM originais
+        
+        const metadata = {
+            // Parâmetros de rastreamento UTMify
+            src: trackingParams?.src || null,
+            sck: trackingParams?.sck || null,
+            utm_source: trackingParams?.utm_source || null,
+            utm_campaign: trackingParams?.utm_campaign || null,
+            utm_medium: trackingParams?.utm_medium || null,
+            utm_content: trackingParams?.utm_content || null,
+            utm_term: trackingParams?.utm_term || null,
+            
+            // Dados do cliente para backup
+            customer_name: customer.nome || "Cliente",
+            customer_email: customer.email || "cliente@email.com",
+            customer_phone: cleanPhone,
+            customer_document: cleanCPF,
+            
+            // Informações adicionais
+            product_name: items?.[0]?.nome || items?.[0]?.title || "Taxa de Serviço",
+            created_at: new Date().toISOString(),
+            
+            // ID interno para rastreamento
+            internal_ref: `CHEFF-${Date.now()}`
+        };
+
         // 5. Montagem do Payload (Padrão CamelCase exigido)
         const payload = {
             amount: amountInCents,
             paymentMethod: "pix",
             checkout: "api",
-            postbackUrl: "https://seusite.com/api/webhook",
+            postbackUrl: WEBHOOK_URL, // URL do webhook que receberá as atualizações
             pix: { expiresInSeconds: 1800 },
             customer: {
                 name: customer.nome || "Cliente",
@@ -64,10 +109,16 @@ module.exports = async (req, res) => {
                 tangible: true
             })) : [
                 { title: "Pedido Delivery", unitPrice: amountInCents, quantity: 1, tangible: true }
-            ]
+            ],
+            // ============================================
+            // METADADOS COM PARÂMETROS DE RASTREAMENTO
+            // ============================================
+            // Estes dados serão retornados no webhook quando o pagamento for confirmado
+            metadata: metadata
         };
 
-        console.log("Processando Pix para:", cleanCPF);
+        console.log("🔄 Processando Pix para:", cleanCPF);
+        console.log("📦 Metadados incluídos:", JSON.stringify(metadata, null, 2));
 
         const response = await axios.post(API_URL, payload, {
             headers: {
@@ -79,6 +130,8 @@ module.exports = async (req, res) => {
 
         const data = response.data;
 
+        console.log("✅ Pix gerado com sucesso! ID:", data.id);
+
         return res.status(200).json({
             success: true,
             transactionId: data.id,
@@ -86,13 +139,15 @@ module.exports = async (req, res) => {
             qr_code_base64: data.pix?.qrcode_image || data.pix_qrcode_image,
             amount: amountFloat,
             customer: customer,
-            expiration_seconds: 1800
+            expiration_seconds: 1800,
+            // Retorna os tracking params para o frontend poder usar se necessário
+            trackingParams: trackingParams || null
         });
 
     } catch (error) {
         const errorData = error.response?.data;
         const statusCode = error.response?.status || 500;
-        console.error("ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
+        console.error("❌ ERRO OTIMIZE:", JSON.stringify(errorData, null, 2));
         
         return res.status(statusCode).json({
             success: false,

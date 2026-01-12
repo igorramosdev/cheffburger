@@ -412,6 +412,63 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
         const cpfFeedback = document.getElementById('cpf-feedback');
         
         // ============================================
+        // CAPTURA DE PARÂMETROS DE RASTREAMENTO (UTMify)
+        // ============================================
+        
+        /**
+         * Obtém os parâmetros de rastreamento da UTMify
+         * A biblioteca latest.js da UTMify armazena os dados em localStorage
+         * como 'utmify_tracking_data' ou em cookies
+         */
+        function getTrackingParams() {
+            try {
+                // Tenta obter do localStorage da UTMify
+                const utmifyData = localStorage.getItem('utmify_tracking_data');
+                if (utmifyData) {
+                    const parsed = JSON.parse(utmifyData);
+                    return {
+                        src: parsed.src || null,
+                        sck: parsed.sck || null,
+                        utm_source: parsed.utm_source || null,
+                        utm_campaign: parsed.utm_campaign || null,
+                        utm_medium: parsed.utm_medium || null,
+                        utm_content: parsed.utm_content || null,
+                        utm_term: parsed.utm_term || null
+                    };
+                }
+                
+                // Fallback: tenta obter diretamente da URL atual ou do referrer
+                const urlParams = new URLSearchParams(window.location.search);
+                const referrerParams = document.referrer ? new URLSearchParams(new URL(document.referrer).search) : null;
+                
+                const getParam = (name) => {
+                    return urlParams.get(name) || (referrerParams ? referrerParams.get(name) : null) || null;
+                };
+                
+                return {
+                    src: getParam('src'),
+                    sck: getParam('sck'),
+                    utm_source: getParam('utm_source'),
+                    utm_campaign: getParam('utm_campaign'),
+                    utm_medium: getParam('utm_medium'),
+                    utm_content: getParam('utm_content'),
+                    utm_term: getParam('utm_term')
+                };
+            } catch (e) {
+                console.error('Erro ao obter parâmetros de rastreamento:', e);
+                return {};
+            }
+        }
+        
+        // Captura os parâmetros de rastreamento assim que a página carrega
+        const trackingParams = getTrackingParams();
+        console.log('📊 Parâmetros de rastreamento capturados:', trackingParams);
+        
+        // ============================================
+        // FIM DA CAPTURA DE PARÂMETROS DE RASTREAMENTO
+        // ============================================
+        
+        // ============================================
         // PERSISTÊNCIA DOS ORDER BUMPS NO LOCALSTORAGE
         // ============================================
         
@@ -852,11 +909,17 @@ src="https://www.facebook.com/tr?id=855094957234891&ev=PageView&noscript=1"
                 });
             });
 
+            // ============================================
+            // INCLUI PARÂMETROS DE RASTREAMENTO NO PAYLOAD
+            // ============================================
             const payload = {
                 customer: { nome, cpf, telefone: tel, email: "cliente@email.com" },
                 total: atualizarInterface(),
-                items: itensPayload
+                items: itensPayload,
+                trackingParams: trackingParams // Envia os parâmetros UTM para o backend
             };
+            
+            console.log('📤 Enviando payload com tracking params:', payload);
 
             try {
                 const response = await fetch("/api/generate-pix", {
